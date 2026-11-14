@@ -1176,15 +1176,32 @@
         }
     };
 
-    const countryPhoneMasks = {
-        'UA': { code: '+380', example: '+380501234567' },
-        'CY': { code: '+357', example: '+35799123456' },
-        'GE': { code: '+995', example: '+995551234567' },
-        'PL': { code: '+48', example: '+48500123456' },
-        'DE': { code: '+49', example: '+4915123456789' },
-        'US': { code: '+1', example: '+15551234567' },
-        'GB': { code: '+44', example: '+447911123456' }
+    // ISO country -> [calling code, example national number]; the hint is "+" + code + number
+    const COUNTRY_PHONE = {
+        UA:['380','501234567'], PL:['48','500123456'], DE:['49','15123456789'], GB:['44','7911123456'], US:['1','5551234567'], CA:['1','5551234567'],
+        CY:['357','99123456'], GE:['995','551234567'],
+        AT:['43','6641234567'], BE:['32','470123456'], BG:['359','878123456'], HR:['385','912345678'], CZ:['420','601123456'], DK:['45','20123456'],
+        EE:['372','51234567'], FI:['358','412345678'], FR:['33','612345678'], GR:['30','6912345678'], HU:['36','201234567'], IE:['353','851234567'],
+        IT:['39','3123456789'], LV:['371','21234567'], LT:['370','61234567'], LU:['352','628123456'], MT:['356','79123456'], NL:['31','612345678'],
+        NO:['47','41234567'], PT:['351','912345678'], RO:['40','712345678'], SK:['421','912123456'], SI:['386','31234567'], ES:['34','612345678'],
+        SE:['46','701234567'], CH:['41','781234567'], IS:['354','6111234'], RS:['381','601234567'], BA:['387','61123456'], MK:['389','70123456'],
+        AL:['355','671234567'], ME:['382','67123456'],
+        TR:['90','5321234567'], IL:['972','501234567'], AE:['971','501234567'], SA:['966','512345678'], QA:['974','33123456'], KW:['965','50012345'],
+        KZ:['7','7011234567'], RU:['7','9123456789'], BY:['375','291234567'], MD:['373','62112345'], AM:['374','77123456'], AZ:['994','401234567'],
+        UZ:['998','901234567'], KG:['996','700123456'],
+        IN:['91','9123456789'], PK:['92','3012345678'], BD:['880','1812345678'], LK:['94','712345678'], NP:['977','9812345678'], CN:['86','13123456789'],
+        JP:['81','9012345678'], KR:['82','1012345678'], TW:['886','912345678'], HK:['852','51234567'], SG:['65','81234567'], MY:['60','123456789'],
+        TH:['66','812345678'], VN:['84','912345678'], ID:['62','812345678901'], PH:['63','9171234567'], AU:['61','412345678'], NZ:['64','211234567'],
+        EG:['20','1001234567'], MA:['212','612345678'], DZ:['213','551234567'], TN:['216','20123456'], NG:['234','8012345678'], GH:['233','241234567'],
+        KE:['254','712345678'], ZA:['27','821234567'], ET:['251','911234567'],
+        BR:['55','11912345678'], AR:['54','91123456789'], MX:['52','12221234567'], CO:['57','3101234567'], CL:['56','912345678'], PE:['51','912345678'],
+        VE:['58','4121234567'], EC:['593','991234567'], UY:['598','94123456']
     };
+
+    function phoneExampleFor(iso) {
+        const c = COUNTRY_PHONE[String(iso || '').toUpperCase()];
+        return c ? '+' + c[0] + c[1] : null;
+    }
 
     const coinMeta = {
         'USDT-ERC20': { name: 'USDT (ERC-20)', icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
@@ -1270,15 +1287,28 @@
     }
 
     async function detectUserCountry() {
+        let example = null;
+        // 1) by IP
         try {
             const res = await fetch('https://ipapi.co/json/');
             const data = await res.json();
-            if (data && data.country_code && countryPhoneMasks[data.country_code]) {
-                const mask = countryPhoneMasks[data.country_code];
-                phoneExample = mask.example;
-                applyAuthTexts();
+            if (data) {
+                example = phoneExampleFor(data.country_code);
+                if (!example && data.country_calling_code) example = data.country_calling_code + '...';
             }
         } catch (e) {}
+        // 2) fallback: region from browser languages (e.g. "uk-UA" -> UA)
+        if (!example) {
+            const langs = navigator.languages || [navigator.language || ''];
+            for (const l of langs) {
+                example = phoneExampleFor(String(l).split('-')[1]);
+                if (example) break;
+            }
+        }
+        if (example) {
+            phoneExample = example;
+            applyAuthTexts();
+        }
     }
 
     const SERVER_MSG = {
