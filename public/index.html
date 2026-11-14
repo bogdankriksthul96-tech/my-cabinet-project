@@ -1,39 +1,1347 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ru">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    body {background-color: #0a0c11}
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff; background-color: #0b0e16; min-height: 16.0px}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 13.0px 'Helvetica Neue'; color: #ffffff; -webkit-text-stroke: #ffffff; background-color: #0b0e16}
-    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 15.0px '.SF NS'; color: #ffffff; -webkit-text-stroke: #ffffff}
-    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 13.0px 'Helvetica Neue'; color: #e82c35; -webkit-text-stroke: #e82c35; min-height: 16.0px}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 13.0px 'Helvetica Neue'; color: #1bae6e; -webkit-text-stroke: #1bae6e; min-height: 16.0px}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; text-align: center; font: 14.0px 'Helvetica Neue'; color: #4f91f8; -webkit-text-stroke: #4f91f8}
-    span.s1 {font-kerning: none}
-    span.s2 {font: 13.0px Times; font-kerning: none}
-    span.s3 {font-kerning: none; background-color: #101422}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-color: #090d16;
+            --card-bg: #131b2e;
+            --card-border: #1e293b;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 460px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-box {
+            text-align: center;
+            padding: 40px 24px;
+            margin-top: 40px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-weight: 700;
+        }
+
+        input, select {
+            background: #0b111d;
+            border: 1px solid var(--card-border);
+            color: #ffffff;
+            caret-color: #3b82f6;
+            padding: 12px 16px;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 15px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .balance-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .balance-value {
+            font-size: 34px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: #0b111d;
+            border: 1px solid var(--card-border);
+            padding: 14px;
+            border-radius: 14px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .stat-val {
+            font-size: 15px;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .positive { color: var(--success); }
+        .hidden { display: none !important; }
+
+        .wallets-box, .withdraw-box, .settings-box, .referral-box {
+            margin-top: 14px;
+            border-top: 1px solid var(--card-border);
+            padding-top: 14px;
+        }
+
+        .coin-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .coin-item {
+            background: #0b111d;
+            border: 1px solid var(--card-border);
+            padding: 12px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .coin-item:hover, .coin-item.selected {
+            border-color: var(--accent-blue);
+            background: #172033;
+        }
+
+        .coin-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: contain;
+        }
+
+        .coin-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .wallet-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .wallet-address-box {
+            background: #0b111d;
+            padding: 12px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #60a5fa;
+            word-break: break-all;
+            flex-grow: 1;
+            border: 1px solid var(--card-border);
+        }
+
+        .copy-btn {
+            background: var(--accent-blue);
+            border: none;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            width: auto;
+            margin-top: 0;
+            white-space: nowrap;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 120px;
+            margin-top: 8px;
+        }
+
+        .toggle-link {
+            margin-top: 18px;
+            font-size: 14px;
+            color: #60a5fa;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .toggle-link:hover {
+            text-decoration: underline;
+        }
+
+        .history-list {
+            margin-top: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .history-item {
+            background: #0b111d;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            border: 1px solid var(--card-border);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .user-greeting {
+            background: #131b2e;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 14px 20px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
 </head>
 <body>
-<p class="p1"><span class="s1"></span><br></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s2">Русский</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s2">English</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s2">Españolукккв</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s2">Deutsch</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s2">Polski</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s2">Čeština</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s2">Français</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span></span></p>
-<h2 style="margin: 0.0px 0.0px 14.9px 0.0px; text-align: center; font: 18.0px 'Helvetica Neue'; color: #f6f9fb; -webkit-text-stroke: #f6f9fb"><span class="s3">Вход в кабинет</span></h2>
-<p class="p4"><span class="s3"><b>Войти в систему</b><b></b></span></p>
-<p class="p5"><span class="s1"></span><br></p>
-<p class="p6"><span class="s1"></span><br></p>
-<p class="p7"><span class="s3">Забыли пароль?</span></p>
-<p class="p7"><span class="s3">Нет аккаунта? Зарегистрироваться</span></p>
+<div class="container">
+    <div class="top-bar">
+        <select id="langSelect" onchange="changeLanguage(this.value)" style="width: auto; margin-bottom: 0; padding: 6px 12px; font-size: 13px;">
+            <option value="ru">Русский</option>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="de">Deutsch</option>
+            <option value="pl">Polski</option>
+            <option value="cs">Čeština</option>
+            <option value="fr">Français</option>
+        </select>
+    </div>
+
+    <div id="authScreen" class="card auth-box">
+        <h2 id="authTitle">Вход в кабинет</h2>
+        <div style="margin-top: 24px;">
+            <div id="registerFields" class="hidden">
+                <input type="text" id="firstName" placeholder="Имя">
+                <input type="text" id="lastName" placeholder="Фамилия">
+                <input type="text" id="phone" placeholder="Телефон (+380...)">
+                <input type="text" id="refCodeInput" placeholder="Реферальный код (необязательно)">
+            </div>
+            
+            <input type="email" id="email" placeholder="Email (например, user@mail.com)">
+            <input type="password" id="password" placeholder="Пароль (мин. 6 символов)">
+            
+            <button id="authBtn" onclick="submitAuth()">Войти в систему</button>
+        </div>
+        
+        <div id="authError" style="color: var(--danger); margin-top: 12px; font-size: 13px;"></div>
+        <div id="authSuccess" style="color: var(--success); margin-top: 12px; font-size: 13px;"></div>
+        
+        <div class="toggle-link" id="forgotPasswordBtn" onclick="toggleForgotMode()">Забыли пароль?</div>
+        <div class="toggle-link" id="toggleModeBtn" onclick="toggleMode()">Нет аккаунта? Зарегистрироваться</div>
+    </div>
+
+    <div id="cabinetScreen" class="hidden">
+        <div class="user-greeting">
+            <div>
+                <div style="font-weight: 700; font-size: 15px;" id="userNameDisplay">Имя пользователя</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="userEmailDisplay">email@mail.com</div>
+            </div>
+            <button onclick="logout()" style="width: auto; margin-top:0; padding: 8px 14px; font-size: 12px; background: #1e293b;" data-i18n="logout">Выйти</button>
+        </div>
+
+        <div class="card">
+            <div class="header-top">
+                <div class="balance-title" style="margin-bottom:0;" data-i18n="total_balance">Общий баланс аккаунта</div>
+            </div>
+            <div class="balance-value" id="userBalance">$0.00</div>
+            <div class="balance-title" style="margin-top: 16px;" data-i18n="yield_dynamics">Динамика доходности</div>
+            <div class="chart-container">
+                <canvas id="yieldChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="balance-title" data-i18n="arbitrage_stats">Статистика арбитража</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label" id="statIntervalLabel">За 18 часов</div>
+                    <div class="stat-val positive" id="statPercentVal">+0.85%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label" data-i18n="bot_status">Статус бота</div>
+                    <div class="stat-val" id="botMiniStatus" style="color: var(--text-muted);" data-i18n="disabled">Отключен</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="balance-title" style="margin-bottom: 10px;" data-i18n="bot_module">Торговый модуль / Стратегия</div>
+            <select id="botTypeSelect" onchange="onBotTypeChange()" style="margin-bottom: 12px;">
+                <option value="basic" id="optBasic">Базовый бот (Арбитраж)</option>
+                <option value="pump" id="optPump">Памп-Дамп бот</option>
+                <option value="testnet" id="optTestnet">Тестнет бот</option>
+                <option value="speculator" id="optSpeculator">Спекулянт</option>
+            </select>
+            <button id="botBtn" class="btn-success" onclick="toggleBot()">Подключить аккаунт к боту</button>
+            <div id="botStatusText" style="font-size: 12px; color: var(--text-muted); margin-top: 10px; text-align: center;" data-i18n="bot_desc">Автоматический доход 0.85% каждые 18 часов</div>
+        </div>
+
+        <div class="card">
+            <button onclick="toggleWallets()" data-i18n="deposit_btn">Депозит (Пополнить)</button>
+            <div id="walletsContainer" class="wallets-box hidden">
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" data-i18n="select_network">Выберите сеть пополнения:</div>
+                <div class="coin-grid" id="coinGrid">Загрузка...</div>
+                <div id="selectedWalletBox" class="hidden" style="margin-top: 12px;">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;" id="selectedCoinTitle">Адрес для пополнения:</div>
+                    <div class="wallet-row">
+                        <div class="wallet-address-box" id="walletAddressText"></div>
+                        <button class="copy-btn" onclick="copyAddress()" data-i18n="copy">Копировать</button>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-danger" onclick="toggleWithdraw()" style="margin-top: 12px;" data-i18n="withdraw_btn">Вывести средства</button>
+            <div id="withdrawContainer" class="withdraw-box hidden">
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" data-i18n="select_withdraw_network">Выберите сеть для вывода:</div>
+                <div class="coin-grid" id="withdrawCoinGrid">Загрузка...</div>
+                
+                <div style="margin-top: 14px;">
+                    <input type="text" id="withdrawAddress" placeholder="Адрес кошелька получателя">
+                    <input type="number" id="withdrawAmount" placeholder="Сумма ($)">
+                    <button class="btn-danger" onclick="submitWithdraw()" data-i18n="request_withdraw">Запросить вывод</button>
+                </div>
+            </div>
+
+            <button onclick="toggleReferrals()" style="margin-top: 12px; background: #2563eb;" data-i18n="referral_btn">Реферальная программа</button>
+            <div id="referralContainer" class="referral-box hidden">
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;" data-i18n="ref_code_title">Ваш реферальный код:</div>
+                <div class="wallet-row">
+                    <div class="wallet-address-box" id="userRefCodeBox" style="font-weight: bold; color: #10b981;">—</div>
+                    <button class="copy-btn" onclick="copyRefCode()" data-i18n="copy">Копировать</button>
+                </div>
+                <div style="margin-top: 12px; font-size: 13px;" id="refStatsText">Приглашено: 0 | Полученный доход: $0.00</div>
+                <div style="margin-top: 10px; font-weight: 600; font-size: 13px;" data-i18n="ref_list_title">Список приглашенных:</div>
+                <div id="referralList" class="history-list" style="max-height: 180px; margin-top: 6px;">
+                    <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 8px;" data-i18n="no_referrals">Нет рефералов</div>
+                </div>
+            </div>
+
+            <button onclick="toggleSettings()" style="margin-top: 12px; background: #1e293b;" data-i18n="settings_btn">Настройки аккаунта</button>
+            <div id="settingsContainer" class="settings-box hidden">
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" data-i18n="change_password_title">Смена пароля</div>
+                <input type="password" id="oldPassword" placeholder="Текущий пароль">
+                <input type="password" id="newPassword" placeholder="Новый пароль (мин. 6 символов)">
+                <button onclick="changePassword()" data-i18n="save_password">Сохранить новый пароль</button>
+                <div id="settingsError" style="color: var(--danger); font-size: 12px; margin-top: 6px;"></div>
+                <div id="settingsSuccess" style="color: var(--success); font-size: 12px; margin-top: 6px;"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="balance-title" style="margin-bottom: 10px;" data-i18n="history_title">История начислений и транзакций</div>
+            <div class="history-list" id="historyList">
+                <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px;" data-i18n="no_transactions">Нет транзакций</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUser = null;
+    let isRegisterMode = false;
+    let isForgotMode = false;
+    let currentAddress = "";
+    let currentCoin = "";
+    let walletsData = [];
+    let selectedWithdrawCoin = "";
+    let currentLang = localStorage.getItem('appLang') || 'ru';
+    let myChart = null;
+
+    const translations = {
+        ru: {
+            logout: "Выйти",
+            total_balance: "Общий баланс аккаунта",
+            yield_dynamics: "Динамика доходности",
+            arbitrage_stats: "Статистика арбитража",
+            bot_status: "Статус бота",
+            disabled: "Отключен",
+            active: "Активен",
+            bot_module: "Торговый модуль / Стратегия",
+            bot_basic: "Базовый бот (Арбитраж)",
+            bot_pump: "Памп-Дамп бот",
+            bot_testnet: "Тестнет бот",
+            bot_speculator: "Спекулянт",
+            bot_desc: "Автоматический доход 0.85% каждые 18 часов",
+            deposit_btn: "Депозит (Пополнить)",
+            select_network: "Выберите сеть пополнения:",
+            copy: "Копировать",
+            withdraw_btn: "Вывести средства",
+            select_withdraw_network: "Выберите сеть для вывода:",
+            request_withdraw: "Запросить вывод",
+            referral_btn: "Реферальная программа",
+            ref_code_title: "Ваш реферальный код:",
+            ref_list_title: "Список приглашенных:",
+            ref_invited: "Приглашено:",
+            ref_earned: "Полученный доход:",
+            no_referrals: "Нет приглашенных рефералов",
+            settings_btn: "Настройки аккаунта",
+            change_password_title: "Смена пароля",
+            save_password: "Сохранить новый пароль",
+            history_title: "История начислений и транзакций",
+            no_transactions: "Нет транзакций",
+            interval_prefix: "За",
+            interval_hours: "часов",
+            status_label: "Статус",
+            status_completed: "Выполнено",
+            status_processing: "В обработке",
+            status_pending: "Ожидает оплаты",
+            status_canceled: "Отменено",
+            tx_deposit: "Депозит",
+            tx_deposit_req: "Запрос депозита",
+            tx_withdraw: "Вывод средств",
+            tx_arbitrage: "Арбитражный доход",
+            tx_ref_bonus: "Реферальный доход",
+            waiting_text: "Ожидание"
+        },
+        en: {
+            logout: "Logout",
+            total_balance: "Total Account Balance",
+            yield_dynamics: "Yield Dynamics",
+            arbitrage_stats: "Arbitrage Statistics",
+            bot_status: "Bot Status",
+            disabled: "Disabled",
+            active: "Active",
+            bot_module: "Trading Module / Strategy",
+            bot_basic: "Basic Bot (Arbitrage)",
+            bot_pump: "Pump & Dump Bot",
+            bot_testnet: "Testnet Bot",
+            bot_speculator: "Speculator",
+            bot_desc: "Automatic profit of 0.85% every 18 hours",
+            deposit_btn: "Deposit",
+            select_network: "Select deposit network:",
+            copy: "Copy",
+            withdraw_btn: "Withdraw",
+            select_withdraw_network: "Select withdrawal network:",
+            request_withdraw: "Request Withdrawal",
+            referral_btn: "Referral Program",
+            ref_code_title: "Your referral code:",
+            ref_list_title: "Referred users:",
+            ref_invited: "Invited:",
+            ref_earned: "Total earned:",
+            no_referrals: "No referred users",
+            settings_btn: "Account Settings",
+            change_password_title: "Change Password",
+            save_password: "Save New Password",
+            history_title: "Transactions History",
+            no_transactions: "No transactions",
+            interval_prefix: "Every",
+            interval_hours: "hours",
+            status_label: "Status",
+            status_completed: "Completed",
+            status_processing: "Processing",
+            status_pending: "Pending payment",
+            status_canceled: "Canceled",
+            tx_deposit: "Deposit",
+            tx_deposit_req: "Deposit Request",
+            tx_withdraw: "Withdrawal",
+            tx_arbitrage: "Arbitrage Profit",
+            tx_ref_bonus: "Referral Earnings",
+            waiting_text: "Waiting"
+        },
+        es: {
+            logout: "Cerrar sesión",
+            total_balance: "Saldo total de la cuenta",
+            yield_dynamics: "Dinámica de rendimiento",
+            arbitrage_stats: "Estadísticas de arbitraje",
+            bot_status: "Estado del bot",
+            disabled: "Desactivado",
+            active: "Activo",
+            bot_module: "Módulo de Trading / Estrategia",
+            bot_basic: "Bot Básico (Arbitraje)",
+            bot_pump: "Bot Pump & Dump",
+            bot_testnet: "Bot Testnet",
+            bot_speculator: "Especulador",
+            bot_desc: "Beneficio automático del 0.85% cada 18 horas",
+            deposit_btn: "Depósito",
+            select_network: "Seleccione la red de depósito:",
+            copy: "Copiar",
+            withdraw_btn: "Retirar",
+            select_withdraw_network: "Seleccione la red de retiro:",
+            request_withdraw: "Solicitar Retiro",
+            referral_btn: "Programa de referidos",
+            ref_code_title: "Su código de referido:",
+            ref_list_title: "Lista de referidos:",
+            ref_invited: "Invitados:",
+            ref_earned: "Ingresos obtenidos:",
+            no_referrals: "Sin referidos",
+            settings_btn: "Configuración de cuenta",
+            change_password_title: "Cambiar contraseña",
+            save_password: "Guardar nueva contraseña",
+            history_title: "Historial de transacciones",
+            no_transactions: "Sin transacciones",
+            interval_prefix: "Cada",
+            interval_horas: "horas",
+            status_label: "Estado",
+            status_completed: "Completado",
+            status_processing: "Procesando",
+            status_pending: "Pendiente",
+            status_canceled: "Cancelado",
+            tx_deposit: "Depósito",
+            tx_deposit_req: "Solicitud de depósito",
+            tx_withdraw: "Retiro",
+            tx_arbitrage: "Beneficio de arbitraje",
+            tx_ref_bonus: "Ingresos de referidos",
+            waiting_text: "Espera"
+        },
+        de: {
+            logout: "Abmelden",
+            total_balance: "Gesamtkontostand",
+            yield_dynamics: "Renditedynamik",
+            arbitrage_stats: "Arbitrage-Statistiken",
+            bot_status: "Bot-Status",
+            disabled: "Deaktiviert",
+            active: "Aktiv",
+            bot_module: "Handelsmodul / Strategie",
+            bot_basic: "Basis-Bot (Arbitrage)",
+            bot_pump: "Pump & Dump Bot",
+            bot_testnet: "Testnet Bot",
+            bot_speculator: "Spekulant",
+            bot_desc: "Automatischer Gewinn von 0,85 % alle 18 Stunden",
+            deposit_btn: "Einzahlen",
+            select_network: "Einzahlungsnetzwerk auswählen:",
+            copy: "Kopieren",
+            withdraw_btn: "Auszahlen",
+            select_withdraw_network: "Auszahlungsnetzwerk auswählen:",
+            request_withdraw: "Auszahlung anfordern",
+            referral_btn: "Empfehlungsprogramm",
+            ref_code_title: "Ihr Empfehlungscode:",
+            ref_list_title: "Empfohlene Benutzer:",
+            ref_invited: "Eingeladen:",
+            ref_earned: "Erzieltes Einkommen:",
+            no_referrals: "Keine Empfehlungen",
+            settings_btn: "Kontoeinstellungen",
+            change_password_title: "Passwort ändern",
+            save_password: "Neues Passwort speichern",
+            history_title: "Transaktionsverlauf",
+            no_transactions: "Keine Transaktionen",
+            interval_prefix: "Alle",
+            interval_hours: "Stunden",
+            status_label: "Status",
+            status_completed: "Abgeschlossen",
+            status_processing: "In Bearbeitung",
+            status_pending: "Ausstehend",
+            status_canceled: "Abgebrochen",
+            tx_deposit: "Einzahlung",
+            tx_deposit_req: "Einzahlungsanfrage",
+            tx_withdraw: "Auszahlung",
+            tx_arbitrage: "Arbitrage-Gewinn",
+            tx_ref_bonus: "Empfehlungsverdienst",
+            waiting_text: "Warten"
+        },
+        pl: {
+            logout: "Wyloguj",
+            total_balance: "Całkowite saldo konta",
+            yield_dynamics: "Dynamika zysków",
+            arbitrage_stats: "Statystyki arbitrażu",
+            bot_status: "Status bota",
+            disabled: "Wyłączony",
+            active: "Aktywny",
+            bot_module: "Moduł handlowy / Strategia",
+            bot_basic: "Podstawowy bot (Arbitraż)",
+            bot_pump: "Bot Pump & Dump",
+            bot_testnet: "Bot Testnet",
+            bot_speculator: "Spekulant",
+            bot_desc: "Automatyczny zysk 0.85% co 18 godzin",
+            deposit_btn: "Wpłata",
+            select_network: "Wybierz sieć wpłaty:",
+            copy: "Kopiuj",
+            withdraw_btn: "Wypłata",
+            select_withdraw_network: "Wybierz sieć wypłaty:",
+            request_withdraw: "Zleć wypłatę",
+            referral_btn: "Program poleceń",
+            ref_code_title: "Twój kod polecenia:",
+            ref_list_title: "Poleceni użytkownicy:",
+            ref_invited: "Zaproszeni:",
+            ref_earned: "Uzyskany dochód:",
+            no_referrals: "Brak poleconych",
+            settings_btn: "Ustawienia konta",
+            change_password_title: "Zmiana hasła",
+            save_password: "Zapisz nowe hasło",
+            history_title: "Historia transakcji",
+            no_transactions: "Brak transakcji",
+            interval_prefix: "Co",
+            interval_hours: "godzin",
+            status_label: "Status",
+            status_completed: "Zakończono",
+            status_processing: "Przetwarzanie",
+            status_pending: "Oczekiwanie",
+            status_canceled: "Anulowano",
+            tx_deposit: "Wpłata",
+            tx_deposit_req: "Zlecenie wpłaty",
+            tx_withdraw: "Wypłata",
+            tx_arbitrage: "Zysk z arbitrażu",
+            tx_ref_bonus: "Dochód z poleceń",
+            waiting_text: "Oczekiwanie"
+        },
+        cs: {
+            logout: "Odhlásit",
+            total_balance: "Celkový zůstatek účtu",
+            yield_dynamics: "Dynamika výnosů",
+            arbitrage_stats: "Statistiky arbitráže",
+            bot_status: "Stav bota",
+            disabled: "Neaktivní",
+            active: "Aktivní",
+            bot_module: "Obchodní modul / Strategie",
+            bot_basic: "Základní bot (Arbitráž)",
+            bot_pump: "Pump & Dump bot",
+            bot_testnet: "Testnet bot",
+            bot_speculator: "Spekulant",
+            bot_desc: "Automatický zisk 0,85 % každých 18 hodin",
+            deposit_btn: "Vklad",
+            select_network: "Vyberte síť pro vklad:",
+            copy: "Kopírovat",
+            withdraw_btn: "Vybrat",
+            select_withdraw_network: "Vyberte síť pro výběr:",
+            request_withdraw: "Požádat o výběr",
+            referral_btn: "Affiliate program",
+            ref_code_title: "Váš doporučující kód:",
+            ref_list_title: "Doporučení uživatelé:",
+            ref_invited: "Pozváno:",
+            ref_earned: "Získaný příjem:",
+            no_referrals: "Žádná doporučení",
+            settings_btn: "Nastavení účtu",
+            change_password_title: "Změna hesla",
+            save_password: "Uložit nové heslo",
+            history_title: "Historie transakcí",
+            no_transactions: "Žádné transakce",
+            interval_prefix: "Každých",
+            interval_hours: "hodin",
+            status_label: "Stav",
+            status_completed: "Dokončeno",
+            status_processing: "Zpracovává se",
+            status_pending: "Čeká na platbu",
+            status_canceled: "Zrušeno",
+            tx_deposit: "Vklad",
+            tx_deposit_req: "Žádost o vklad",
+            tx_withdraw: "Výběr",
+            tx_arbitrage: "Arbitrážní zisk",
+            tx_ref_bonus: "Zisk z doporučení",
+            waiting_text: "Čekání"
+        },
+        fr: {
+            logout: "Se déconnecter",
+            total_balance: "Solde total du compte",
+            yield_dynamics: "Dynamique des rendements",
+            arbitrage_stats: "Statistiques d'arbitrage",
+            bot_status: "État du bot",
+            disabled: "Désactivé",
+            active: "Actif",
+            bot_module: "Module de trading / Stratégie",
+            bot_basic: "Bot de base (Arbitrage)",
+            bot_pump: "Bot Pump & Dump",
+            bot_testnet: "Bot Testnet",
+            bot_speculator: "Spéculateur",
+            bot_desc: "Profit automatique de 0.85% toutes les 18 heures",
+            deposit_btn: "Dépôt",
+            select_network: "Sélectionnez le réseau de dépôt :",
+            copy: "Copier",
+            withdraw_btn: "Retirer",
+            select_withdraw_network: "Sélectionnez le réseau de retrait :",
+            request_withdraw: "Demander un retrait",
+            referral_btn: "Programme de parrainage",
+            ref_code_title: "Votre code de parrainage :",
+            ref_list_title: "Filleuls parrainés :",
+            ref_invited: "Invités :",
+            ref_earned: "Revenus obtenus :",
+            no_referrals: "Aucun filleul",
+            settings_btn: "Paramètres du compte",
+            change_password_title: "Changer le mot de passe",
+            save_password: "Enregistrer le nouveau mot de passe",
+            history_title: "Historique des transactions",
+            no_transactions: "Aucune transaction",
+            interval_prefix: "Chaque",
+            interval_hours: "heures",
+            status_label: "Statut",
+            status_completed: "Terminé",
+            status_processing: "En cours",
+            status_pending: "En attente",
+            status_canceled: "Annulé",
+            tx_deposit: "Dépôt",
+            tx_deposit_req: "Demande de dépôt",
+            tx_withdraw: "Retrait",
+            tx_arbitrage: "Profit d'arbitrage",
+            tx_ref_bonus: "Revenus de parrainage",
+            waiting_text: "Attente"
+        }
+    };
+
+    const countryPhoneMasks = {
+        'UA': { code: '+380', example: '+380501234567' },
+        'CY': { code: '+357', example: '+35799123456' },
+        'GE': { code: '+995', example: '+995551234567' },
+        'PL': { code: '+48', example: '+48500123456' },
+        'DE': { code: '+49', example: '+4915123456789' },
+        'US': { code: '+1', example: '+15551234567' },
+        'GB': { code: '+44', example: '+447911123456' }
+    };
+
+    const coinMeta = {
+        'USDT-ERC20': { name: 'USDT (ERC-20)', icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
+        'USDT-BEP20': { name: 'USDT (BEP-20)', icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
+        'USDT-TRC20': { name: 'USDT (TRC-20)', icon: 'https://assets.coingecko.com/coins/images/325/large/Tether.png' },
+        'USDC-ERC20': { name: 'USDC (ERC-20)', icon: 'https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png' },
+        'USDC-BEP20': { name: 'USDC (BEP-20)', icon: 'https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png' }
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        detectUserCountry();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const refParam = urlParams.get('ref');
+        if (refParam) {
+            isRegisterMode = true;
+            toggleModeForRef(refParam);
+        }
+
+        document.getElementById('langSelect').value = currentLang;
+        changeLanguage(currentLang);
+
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            const localObj = JSON.parse(savedUser);
+            try {
+                const res = await fetch('/api/admin/users');
+                if (res.ok) {
+                    const users = await res.json();
+                    const freshUser = users.find(u => u.id === localObj.id);
+                    if (freshUser) {
+                        currentUser = freshUser;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        loginSuccessFlow(currentUser);
+                        return;
+                    }
+                }
+            } catch (e) {}
+            currentUser = localObj;
+            loginSuccessFlow(currentUser);
+        }
+    });
+
+    function toggleModeForRef(refCode) {
+        document.getElementById("authTitle").innerText = "Регистрация аккаунта";
+        document.getElementById("authBtn").innerText = "Зарегистрироваться";
+        document.getElementById("toggleModeBtn").innerText = "Уже есть аккаунт? Войти";
+        document.getElementById("forgotPasswordBtn").classList.add("hidden");
+        document.getElementById("password").classList.remove("hidden");
+        document.getElementById("registerFields").classList.remove("hidden");
+        document.getElementById("refCodeInput").value = refCode;
+    }
+
+    function changeLanguage(lang) {
+        currentLang = lang;
+        localStorage.setItem('appLang', lang);
+        
+        const dict = translations[lang] || translations.ru;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) el.innerText = dict[key];
+        });
+        document.getElementById("optBasic").innerText = dict.bot_basic;
+        document.getElementById("optPump").innerText = dict.bot_pump;
+        document.getElementById("optTestnet").innerText = dict.bot_testnet;
+        document.getElementById("optSpeculator").innerText = dict.bot_speculator;
+        
+        if (currentUser) {
+            updateBotUIDynamic(currentUser);
+            loadHistory();
+            loadReferrals();
+        }
+    }
+
+    async function detectUserCountry() {
+        try {
+            const res = await fetch('https://ipapi.co/json/');
+            const data = await res.json();
+            if (data && data.country_code && countryPhoneMasks[data.country_code]) {
+                const mask = countryPhoneMasks[data.country_code];
+                document.getElementById('phone').placeholder = `Телефон (${mask.example})`;
+            }
+        } catch (e) {}
+    }
+
+    function toggleMode() {
+        isRegisterMode = !isRegisterMode;
+        isForgotMode = false;
+        document.getElementById("authTitle").innerText = isRegisterMode ? "Регистрация аккаунта" : "Вход в кабинет";
+        document.getElementById("authBtn").innerText = isRegisterMode ? "Зарегистрироваться" : "Войти в систему";
+        document.getElementById("toggleModeBtn").innerText = isRegisterMode ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться";
+        document.getElementById("forgotPasswordBtn").classList.toggle("hidden", isRegisterMode);
+        document.getElementById("password").classList.remove("hidden");
+        document.getElementById("registerFields").classList.toggle("hidden", !isRegisterMode);
+        document.getElementById("authError").innerText = "";
+        document.getElementById("authSuccess").innerText = "";
+    }
+
+    function toggleForgotMode() {
+        isForgotMode = !isForgotMode;
+        isRegisterMode = false;
+        document.getElementById("authTitle").innerText = isForgotMode ? "Восстановление пароля" : "Вход в кабинет";
+        document.getElementById("authBtn").innerText = isForgotMode ? "Отправить письмо" : "Войти в систему";
+        document.getElementById("toggleModeBtn").classList.toggle("hidden", isForgotMode);
+        document.getElementById("forgotPasswordBtn").innerText = isForgotMode ? "Вернуться к входу" : "Забыли пароль?";
+        document.getElementById("password").classList.toggle("hidden", isForgotMode);
+        document.getElementById("registerFields").classList.add("hidden");
+        document.getElementById("authError").innerText = "";
+        document.getElementById("authSuccess").innerText = "";
+    }
+
+    async function submitAuth() {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const errDiv = document.getElementById("authError");
+        const succDiv = document.getElementById("authSuccess");
+        
+        errDiv.innerText = "";
+        succDiv.innerText = "";
+
+        if (isForgotMode) {
+            if (!email) {
+                errDiv.innerText = "Укажите email";
+                return;
+            }
+            const res = await fetch("/api/forgot-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                succDiv.innerText = "На почту отправлено письмо";
+            } else {
+                errDiv.innerText = data.error || "Почта не зарегистрирована";
+            }
+            return;
+        }
+
+        let payload = { email, password };
+        if (isRegisterMode) {
+            const firstName = document.getElementById("firstName").value.trim();
+            const lastName = document.getElementById("lastName").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const refCode = document.getElementById("refCodeInput").value.trim();
+
+            if (!firstName || !lastName || !phone) {
+                errDiv.innerText = "Заполните все поля регистрации";
+                return;
+            }
+
+            const phoneRegex = /^\+[1-9]\d{9,14}$/;
+            if (!phoneRegex.test(phone)) {
+                errDiv.innerText = "Неверный формат телефона. Пример: +380501234567";
+                return;
+            }
+
+            if (password.length < 6) {
+                errDiv.innerText = "Пароль должен быть не менее 6 символов";
+                return;
+            }
+
+            payload.firstName = firstName;
+            payload.lastName = lastName;
+            payload.phone = phone;
+            payload.refCode = refCode;
+        }
+
+        const endpoint = isRegisterMode ? "/api/register" : "/api/login";
+        
+        const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        
+        if (res.ok) {
+            currentUser = await res.json();
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            loginSuccessFlow(currentUser);
+        } else {
+            const err = await res.json();
+            errDiv.innerText = err.error || "Ошибка авторизации";
+        }
+    }
+
+    function loginSuccessFlow(user) {
+        document.getElementById("userBalance").innerText = "$" + Number(user.balance).toFixed(2);
+        document.getElementById("botTypeSelect").value = user.bot_type || 'basic';
+        document.getElementById("userNameDisplay").innerText = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+        document.getElementById("userEmailDisplay").innerText = user.email || '';
+        document.getElementById("userRefCodeBox").innerText = user.referral_code || ('REF' + user.id);
+        
+        updateBotUIDynamic(user);
+        changeLanguage(currentLang);
+
+        document.getElementById("authScreen").classList.add("hidden");
+        document.getElementById("cabinetScreen").classList.remove("hidden");
+        loadWallets();
+        loadHistory();
+        loadReferrals();
+    }
+
+    function logout() {
+        localStorage.removeItem('currentUser');
+        currentUser = null;
+        document.getElementById("cabinetScreen").classList.add("hidden");
+        document.getElementById("authScreen").classList.remove("hidden");
+        document.getElementById("email").value = "";
+        document.getElementById("password").value = "";
+    }
+
+    function onBotTypeChange() {
+        const botType = document.getElementById("botTypeSelect").value;
+        if (botType !== 'basic') {
+            const action = confirm("Для активации расширенного бота (Памп-Дамп, Тестнет, Спекулянт) требуется верификация через мессенджер. Перейти в WhatsApp/Telegram?");
+            if (action) {
+                window.location.href = "https://t.me/your_bot_manager_link"; 
+            } else {
+                document.getElementById("botTypeSelect").value = currentUser.bot_type || 'basic';
+            }
+        }
+    }
+
+    function updateBotUIDynamic(user) {
+        const isConnected = Number(user.is_active) === 1;
+        const hours = Math.round((user.interval_seconds || 64800) / 3600);
+        const percent = user.amount || 0.85;
+        const dict = translations[currentLang] || translations.ru;
+
+        document.getElementById("statIntervalLabel").innerText = `${dict.interval_prefix} ${hours} ${dict.interval_hours}`;
+        document.getElementById("statPercentVal").innerText = `+${percent}%`;
+
+        const btn = document.getElementById("botBtn");
+        const status = document.getElementById("botStatusText");
+        const miniStatus = document.getElementById("botMiniStatus");
+        
+        if (isConnected) {
+            btn.className = "btn-danger";
+            btn.innerText = currentLang === 'en' ? "Disconnect account from bot" : "Отключить аккаунт от бота";
+            status.innerText = currentLang === 'en' ? "Status: Bot is running and generating profit" : "Статус: Бот запущен и приносит доход";
+            status.style.color = "var(--success)";
+            miniStatus.innerText = dict.active;
+            miniStatus.style.color = "var(--success)";
+        } else {
+            btn.className = "btn-success";
+            btn.innerText = currentLang === 'en' ? "Connect account to bot" : "Подключить аккаунт к боту";
+            status.innerText = dict.bot_desc;
+            status.style.color = "var(--text-muted)";
+            miniStatus.innerText = dict.disabled;
+            miniStatus.style.color = "var(--text-muted)";
+        }
+    }
+
+    async function loadWallets() {
+        const res = await fetch(`/api/wallets/${currentUser.id}`);
+        walletsData = await res.json();
+        
+        const grid = document.getElementById("coinGrid");
+        grid.innerHTML = walletsData.map((w, index) => {
+            const meta = coinMeta[w.coin] || { name: w.coin, icon: '' };
+            return `
+                <div class="coin-item ${index === 0 ? 'selected' : ''}" onclick="selectCoin('${w.coin}', '${w.address}', this)">
+                    <img class="coin-icon" src="${meta.icon}" alt="Token">
+                    <span class="coin-name">${meta.name}</span>
+                </div>
+            `;
+        }).join('');
+
+        const withdrawGrid = document.getElementById("withdrawCoinGrid");
+        withdrawGrid.innerHTML = walletsData.map((w, index) => {
+            const meta = coinMeta[w.coin] || { name: w.coin, icon: '' };
+            return `
+                <div class="coin-item ${index === 0 ? 'selected' : ''}" id="withdraw_coin_${w.coin}" onclick="selectWithdrawCoin('${w.coin}', this)">
+                    <img class="coin-icon" src="${meta.icon}" alt="Token">
+                    <span class="coin-name">${meta.name}</span>
+                </div>
+            `;
+        }).join('');
+
+        if (walletsData.length > 0) {
+            selectCoin(walletsData[0].coin, walletsData[0].address, grid.children[0]);
+            selectWithdrawCoin(walletsData[0].coin, withdrawGrid.children[0]);
+        }
+    }
+
+    async function loadReferrals() {
+        try {
+            const res = await fetch(`/api/referrals/${currentUser.id}`);
+            const data = await res.json();
+            const list = document.getElementById("referralList");
+            const dict = translations[currentLang] || translations.ru;
+
+            document.getElementById("refStatsText").innerText = `${dict.ref_invited} ${data.totalCount || 0} | ${dict.ref_earned} $${Number(data.totalEarned || 0).toFixed(2)}`;
+
+            if (!data.referrals || data.referrals.length === 0) {
+                list.innerHTML = `<div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 8px;">${dict.no_referrals}</div>`;
+                return;
+            }
+
+            list.innerHTML = data.referrals.map(ref => `
+                <div class="history-item" style="padding: 8px 12px; font-size: 12px;">
+                    <div>
+                        <div style="font-weight: 600; color: #60a5fa;">${ref.first_name || 'User'} (${ref.email})</div>
+                        <div style="color: var(--text-muted); font-size: 11px;">${ref.created_at}</div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {}
+    }
+
+    async function loadHistory() {
+        const res = await fetch(`/api/transactions/${currentUser.id}`);
+        const txs = await res.json();
+        const list = document.getElementById("historyList");
+        const dict = translations[currentLang] || translations.ru;
+
+        if (txs.length === 0) {
+            list.innerHTML = `<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px;" data-i18n="no_transactions">Нет транзакций</div>`;
+            updateYieldChart([]);
+            return;
+        }
+
+        const percent = currentUser.amount || 0.85;
+
+        updateYieldChart(txs);
+
+        list.innerHTML = txs.map(tx => {
+            const isCompleted = tx.status === 'Оплачено' || tx.status === 'Выполнено' || tx.type === 'ARBITRAGE' || tx.type === 'REF_BONUS';
+            const color = isCompleted ? 'var(--success)' : (tx.status === 'Отменено' || tx.status === 'Отклонено' ? 'var(--danger)' : '#f59e0b');
+            const sign = (tx.type === 'DEPOSIT' || tx.type === 'ARBITRAGE' || tx.type === 'REF_BONUS' || tx.status === 'Оплачено') ? '+' : (tx.type === 'WITHDRAW' ? '-' : '');
+            
+            let title = tx.type;
+            if (tx.type === 'DEPOSIT') title = dict.tx_deposit;
+            else if (tx.type === 'DEPOSIT_REQ') title = dict.tx_deposit_req;
+            else if (tx.type === 'WITHDRAW') title = dict.tx_withdraw;
+            else if (tx.type === 'ARBITRAGE') title = `${dict.tx_arbitrage} (${percent}%)`;
+            else if (tx.type === 'REF_BONUS') title = dict.tx_ref_bonus;
+
+            let translatedStatus = tx.status;
+            if (tx.status === 'Выполнено' || tx.status === 'Оплачено') translatedStatus = dict.status_completed;
+            else if (tx.status === 'В обработке') translatedStatus = dict.status_processing;
+            else if (tx.status === 'Ожидает оплаты') translatedStatus = dict.status_pending;
+            else if (tx.status === 'Отменено' || tx.status === 'Отклонено') translatedStatus = dict.status_canceled;
+
+            let displayAmount = '';
+            if (tx.amount > 0) {
+                displayAmount = sign + '$' + Number(tx.amount).toFixed(2);
+            } else if (tx.status === 'Ожидает оплаты' || tx.status === 'В обработке') {
+                displayAmount = dict.waiting_text;
+            } else {
+                displayAmount = '—';
+            }
+
+            return `
+                <div class="history-item">
+                    <div>
+                        <div style="font-weight: 600; color: ${color};">${title} (${tx.coin})</div>
+                        ${tx.address && tx.address !== 'Admin Manual' && tx.address !== 'Arbitrage Bot' && !tx.address.startsWith('Ref Level') ? `<div style="font-size: 11px; font-family: monospace; color: #60a5fa; word-break: break-all; margin-top: 2px;">${tx.address}</div>` : ''}
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">${tx.created_at} • ${dict.status_label}: <b>${translatedStatus}</b></div>
+                    </div>
+                    <div style="font-weight: 700; color: ${color}; white-space: nowrap; margin-left: 10px;">${displayAmount}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateYieldChart(txs) {
+        const sorted = [...txs].reverse().slice(-7);
+        const labels = sorted.map(t => t.created_at.slice(5, 16));
+        
+        let runningBalance = 0;
+        const dataPoints = sorted.map(t => {
+            if (t.type === 'DEPOSIT' || t.type === 'ARBITRAGE' || t.type === 'REF_BONUS' || t.status === 'Оплачено' || t.status === 'Выполнено') {
+                runningBalance += (t.amount || 0);
+            }
+            return runningBalance;
+        });
+
+        if (labels.length === 0) {
+            labels.push('Старт');
+            dataPoints.push(currentUser ? currentUser.balance : 0);
+        }
+
+        const ctx = document.getElementById('yieldChart').getContext('2d');
+        
+        if (myChart) {
+            myChart.data.labels = labels;
+            myChart.data.datasets[0].data = dataPoints;
+            myChart.update();
+            return;
+        }
+
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: dataPoints,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#10b981'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' $' + context.raw.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#1e293b', display: false },
+                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                    },
+                    y: {
+                        grid: { color: '#1e293b' },
+                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                    }
+                }
+            }
+        });
+    }
+
+    function selectCoin(coinName, address, element) {
+        currentCoin = coinName;
+        currentAddress = address;
+        
+        document.querySelectorAll('#coinGrid .coin-item').forEach(el => el.classList.remove('selected'));
+        if (element) element.classList.add('selected');
+
+        const box = document.getElementById("selectedWalletBox");
+        box.classList.remove("hidden");
+        const meta = coinMeta[coinName] || { name: coinName };
+        document.getElementById("selectedCoinTitle").innerText = `Адрес для пополнения (${meta.name}):`;
+        document.getElementById("walletAddressText").innerText = address;
+    }
+
+    async function copyAddress() {
+        await fetch('/api/deposit/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, coin: currentCoin })
+        });
+
+        navigator.clipboard.writeText(currentAddress).then(() => {
+            const btn = document.querySelector(".copy-btn");
+            btn.innerText = "Скопировано!";
+            btn.style.background = "var(--success)";
+            setTimeout(() => {
+                btn.innerText = "Копировать";
+                btn.style.background = "var(--accent-blue)";
+            }, 2000);
+            loadHistory();
+        });
+    }
+
+    async function copyRefCode() {
+        const refCode = document.getElementById("userRefCodeBox").innerText;
+        navigator.clipboard.writeText(refCode).then(() => {
+            alert("Реферальный код скопирован в буфер обмена!");
+        });
+    }
+
+    function selectWithdrawCoin(coinName, element) {
+        selectedWithdrawCoin = coinName;
+        document.querySelectorAll('#withdrawCoinGrid .coin-item').forEach(el => el.classList.remove('selected'));
+        if (element) element.classList.add('selected');
+    }
+
+    async function submitWithdraw() {
+        const address = document.getElementById("withdrawAddress").value.trim();
+        const amount = parseFloat(document.getElementById("withdrawAmount").value);
+
+        if (!selectedWithdrawCoin) {
+            alert("Выберите сеть для вывода");
+            return;
+        }
+        if (!address || !amount || amount <= 0) {
+            alert("Введите корректный адрес и сумму");
+            return;
+        }
+
+        const res = await fetch('/api/withdraw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, coin: selectedWithdrawCoin, address, amount })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            currentUser.balance = data.newBalance;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            document.getElementById("userBalance").innerText = "$" + Number(currentUser.balance).toFixed(2);
+            
+            document.getElementById("withdrawAddress").value = "";
+            document.getElementById("withdrawAmount").value = "";
+            alert("Запрос на вывод успешно отправлен!");
+            loadHistory();
+        } else {
+            const err = await res.json();
+            alert(err.error || "Ошибка запроса на вывод");
+        }
+    }
+
+    async function changePassword() {
+        const oldPassword = document.getElementById("oldPassword").value.trim();
+        const newPassword = document.getElementById("newPassword").value.trim();
+        const errDiv = document.getElementById("settingsError");
+        const succDiv = document.getElementById("settingsSuccess");
+
+        errDiv.innerText = "";
+        succDiv.innerText = "";
+
+        if (!oldPassword || !newPassword) {
+            errDiv.innerText = "Заполните все поля пароля";
+            return;
+        }
+        if (newPassword.length < 6) {
+            errDiv.innerText = "Новый пароль должен быть не менее 6 символов";
+            return;
+        }
+
+        const res = await fetch('/api/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: currentUser.id, oldPassword, newPassword })
+        });
+
+        if (res.ok) {
+            succDiv.innerText = "Пароль успешно изменен!";
+            document.getElementById("oldPassword").value = "";
+            document.getElementById("newPassword").value = "";
+        } else {
+            const err = await res.json();
+            errDiv.innerText = err.error || "Ошибка смены пароля";
+        }
+    }
+
+    function toggleWallets() { document.getElementById("walletsContainer").classList.toggle("hidden"); }
+    function toggleWithdraw() { document.getElementById("withdrawContainer").classList.toggle("hidden"); }
+    function toggleReferrals() { document.getElementById("referralContainer").classList.toggle("hidden"); }
+    function toggleSettings() { document.getElementById("settingsContainer").classList.toggle("hidden"); }
+
+    async function toggleBot() {
+        try {
+            const botType = document.getElementById("botTypeSelect").value;
+            const nextState = Number(currentUser.is_active) === 1 ? 0 : 1;
+            const res = await fetch("/api/bot/toggle", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: currentUser.id, is_active: nextState, bot_type: botType })
+            });
+            
+            if (res.ok) {
+                currentUser.is_active = nextState;
+                currentUser.bot_type = botType;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateBotUIDynamic(currentUser);
+            } else {
+                const errData = await res.json();
+                alert("Ошибка переключения бота: " + (errData.error || res.status));
+            }
+        } catch (e) {
+            alert("Ошибка сети при переключении бота");
+        }
+    }
+</script>
 </body>
 </html>
