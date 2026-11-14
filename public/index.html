@@ -370,7 +370,7 @@
             <button onclick="toggleWallets()" data-i18n="deposit_btn">Депозит (Пополнить)</button>
             <div id="walletsContainer" class="wallets-box hidden">
                 <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" data-i18n="select_network">Выберите сеть пополнения:</div>
-                <div class="coin-grid" id="coinGrid">Загрузка...</div>
+                <div class="coin-grid" id="coinGrid" data-i18n="loading">Загрузка...</div>
                 <div id="selectedWalletBox" class="hidden" style="margin-top: 12px;">
                     <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;" id="selectedCoinTitle">Адрес для пополнения:</div>
                     <div class="wallet-row">
@@ -383,7 +383,7 @@
             <button class="btn-danger" onclick="toggleWithdraw()" style="margin-top: 12px;" data-i18n="withdraw_btn">Вывести средства</button>
             <div id="withdrawContainer" class="withdraw-box hidden">
                 <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;" data-i18n="select_withdraw_network">Выберите сеть для вывода:</div>
-                <div class="coin-grid" id="withdrawCoinGrid">Загрузка...</div>
+                <div class="coin-grid" id="withdrawCoinGrid" data-i18n="loading">Загрузка...</div>
                 
                 <div style="margin-top: 14px;">
                     <input type="text" id="withdrawAddress" placeholder="Адрес кошелька получателя">
@@ -430,6 +430,7 @@
     let currentUser = null;
     let isRegisterMode = false;
     let isForgotMode = false;
+    let phoneExample = "+380...";
     let currentAddress = "";
     let currentCoin = "";
     let walletsData = [];
@@ -455,6 +456,54 @@
             deposit_btn: "Депозит (Пополнить)",
             select_network: "Выберите сеть пополнения:",
             copy: "Копировать",
+            ph_first_name: "Имя",
+            ph_last_name: "Фамилия",
+            ph_phone: "Телефон",
+            ph_ref_code: "Реферальный код (необязательно)",
+            ph_email: "Email (например, user@mail.com)",
+            ph_password: "Пароль (мин. 6 символов)",
+            ph_old_password: "Текущий пароль",
+            ph_new_password: "Новый пароль (мин. 6 символов)",
+            auth_title_login: "Вход в кабинет",
+            auth_title_register: "Регистрация аккаунта",
+            auth_title_forgot: "Восстановление пароля",
+            auth_btn_login: "Войти в систему",
+            auth_btn_register: "Зарегистрироваться",
+            auth_btn_forgot: "Отправить письмо",
+            auth_toggle_register: "Нет аккаунта? Зарегистрироваться",
+            auth_toggle_login: "Уже есть аккаунт? Войти",
+            auth_forgot: "Забыли пароль?",
+            auth_back_login: "Вернуться к входу",
+            auth_enter_email: "Укажите email",
+            auth_mail_sent: "На почту отправлено письмо",
+            auth_fill_register: "Заполните все поля регистрации",
+            auth_bad_phone: "Неверный формат телефона. Пример: +380501234567",
+            auth_pw_min: "Пароль должен быть не менее 6 символов",
+            auth_error: "Ошибка авторизации",
+            pw_fill_all: "Заполните все поля пароля",
+            pw_new_min: "Новый пароль должен быть не менее 6 символов",
+            pw_changed: "Пароль успешно изменен!",
+            pw_error: "Ошибка смены пароля",
+            bot_toggle_error: "Ошибка переключения бота:",
+            bot_network_error: "Ошибка сети при переключении бота",
+            bot_verify_confirm: "Для активации расширенного бота (Памп-Дамп, Тестнет, Спекулянт) требуется верификация через мессенджер. Перейти в WhatsApp/Telegram?",
+            loading: "Загрузка...",
+            chart_start: "Старт",
+            user_default: "Имя пользователя",
+            srv_bad_email: "Введите корректный email адрес",
+            srv_bad_phone: "Введите правильный телефон в формате с кодом страны (например, +380501234567)",
+            srv_user_exists: "Пользователь с таким email уже существует",
+            srv_email_pw: "Укажите email и пароль",
+            srv_user_not_found: "Пользователь не найден",
+            srv_wrong_pw: "Неверный пароль",
+            srv_fill_all: "Заполните все поля",
+            srv_wrong_current: "Неверный текущий пароль",
+            srv_mail_not_found: "Почта не зарегистрирована",
+            srv_wallet_not_found: "Кошелек не найден",
+            srv_fill_withdraw: "Заполните все поля для вывода",
+            srv_no_funds: "Недостаточно средств на балансе",
+            srv_no_userid: "Не указан userId",
+            srv_bot_zero: "Невозможно запустить бота при нулевом или отрицательном балансе",
             bot_connect: "Подключить аккаунт к боту",
             bot_disconnect: "Отключить аккаунт от бота",
             bot_running: "Статус: Бот запущен и приносит доход",
@@ -512,6 +561,54 @@
             deposit_btn: "Deposit",
             select_network: "Select deposit network:",
             copy: "Copy",
+            ph_first_name: "First name",
+            ph_last_name: "Last name",
+            ph_phone: "Phone",
+            ph_ref_code: "Referral code (optional)",
+            ph_email: "Email (e.g., user@mail.com)",
+            ph_password: "Password (min. 6 characters)",
+            ph_old_password: "Current password",
+            ph_new_password: "New password (min. 6 characters)",
+            auth_title_login: "Sign in to your account",
+            auth_title_register: "Create an account",
+            auth_title_forgot: "Password recovery",
+            auth_btn_login: "Sign in",
+            auth_btn_register: "Register",
+            auth_btn_forgot: "Send email",
+            auth_toggle_register: "No account? Register",
+            auth_toggle_login: "Already have an account? Sign in",
+            auth_forgot: "Forgot your password?",
+            auth_back_login: "Back to sign in",
+            auth_enter_email: "Enter your email",
+            auth_mail_sent: "An email has been sent",
+            auth_fill_register: "Fill in all registration fields",
+            auth_bad_phone: "Invalid phone format. Example: +380501234567",
+            auth_pw_min: "Password must be at least 6 characters",
+            auth_error: "Authorization error",
+            pw_fill_all: "Fill in all password fields",
+            pw_new_min: "The new password must be at least 6 characters",
+            pw_changed: "Password changed successfully!",
+            pw_error: "Password change error",
+            bot_toggle_error: "Bot switch error:",
+            bot_network_error: "Network error while switching the bot",
+            bot_verify_confirm: "To activate an advanced bot (Pump-Dump, Testnet, Speculator), verification via a messenger is required. Go to WhatsApp/Telegram?",
+            loading: "Loading...",
+            chart_start: "Start",
+            user_default: "User name",
+            srv_bad_email: "Enter a valid email address",
+            srv_bad_phone: "Enter a valid phone number with country code (e.g., +380501234567)",
+            srv_user_exists: "A user with this email already exists",
+            srv_email_pw: "Enter your email and password",
+            srv_user_not_found: "User not found",
+            srv_wrong_pw: "Incorrect password",
+            srv_fill_all: "Fill in all fields",
+            srv_wrong_current: "Incorrect current password",
+            srv_mail_not_found: "This email is not registered",
+            srv_wallet_not_found: "Wallet not found",
+            srv_fill_withdraw: "Fill in all withdrawal fields",
+            srv_no_funds: "Insufficient balance",
+            srv_no_userid: "userId is missing",
+            srv_bot_zero: "The bot cannot be started with a zero or negative balance",
             bot_connect: "Connect account to bot",
             bot_disconnect: "Disconnect account from bot",
             bot_running: "Status: Bot is running and generating profit",
@@ -569,6 +666,54 @@
             deposit_btn: "Depósito",
             select_network: "Seleccione la red de depósito:",
             copy: "Copiar",
+            ph_first_name: "Nombre",
+            ph_last_name: "Apellido",
+            ph_phone: "Teléfono",
+            ph_ref_code: "Código de referido (opcional)",
+            ph_email: "Correo electrónico (p. ej., user@mail.com)",
+            ph_password: "Contraseña (mín. 6 caracteres)",
+            ph_old_password: "Contraseña actual",
+            ph_new_password: "Nueva contraseña (mín. 6 caracteres)",
+            auth_title_login: "Acceso a tu cuenta",
+            auth_title_register: "Crear una cuenta",
+            auth_title_forgot: "Recuperación de contraseña",
+            auth_btn_login: "Iniciar sesión",
+            auth_btn_register: "Registrarse",
+            auth_btn_forgot: "Enviar correo",
+            auth_toggle_register: "¿No tienes cuenta? Regístrate",
+            auth_toggle_login: "¿Ya tienes cuenta? Inicia sesión",
+            auth_forgot: "¿Olvidaste tu contraseña?",
+            auth_back_login: "Volver al inicio de sesión",
+            auth_enter_email: "Introduce tu correo electrónico",
+            auth_mail_sent: "Se ha enviado un correo electrónico",
+            auth_fill_register: "Rellena todos los campos del registro",
+            auth_bad_phone: "Formato de teléfono no válido. Ejemplo: +380501234567",
+            auth_pw_min: "La contraseña debe tener al menos 6 caracteres",
+            auth_error: "Error de autenticación",
+            pw_fill_all: "Rellena todos los campos de contraseña",
+            pw_new_min: "La nueva contraseña debe tener al menos 6 caracteres",
+            pw_changed: "¡Contraseña cambiada correctamente!",
+            pw_error: "Error al cambiar la contraseña",
+            bot_toggle_error: "Error al cambiar el bot:",
+            bot_network_error: "Error de red al cambiar el bot",
+            bot_verify_confirm: "Para activar un bot avanzado (Pump-Dump, Testnet, Especulador) se requiere verificación a través de un mensajero. ¿Ir a WhatsApp/Telegram?",
+            loading: "Cargando...",
+            chart_start: "Inicio",
+            user_default: "Nombre de usuario",
+            srv_bad_email: "Introduce una dirección de correo válida",
+            srv_bad_phone: "Introduce un teléfono válido con prefijo de país (p. ej., +380501234567)",
+            srv_user_exists: "Ya existe un usuario con este correo",
+            srv_email_pw: "Introduce tu correo y contraseña",
+            srv_user_not_found: "Usuario no encontrado",
+            srv_wrong_pw: "Contraseña incorrecta",
+            srv_fill_all: "Rellena todos los campos",
+            srv_wrong_current: "Contraseña actual incorrecta",
+            srv_mail_not_found: "Este correo no está registrado",
+            srv_wallet_not_found: "Billetera no encontrada",
+            srv_fill_withdraw: "Rellena todos los campos del retiro",
+            srv_no_funds: "Saldo insuficiente",
+            srv_no_userid: "Falta el userId",
+            srv_bot_zero: "No se puede iniciar el bot con saldo cero o negativo",
             bot_connect: "Conectar la cuenta al bot",
             bot_disconnect: "Desconectar la cuenta del bot",
             bot_running: "Estado: el bot está en funcionamiento y genera beneficios",
@@ -626,6 +771,54 @@
             deposit_btn: "Einzahlen",
             select_network: "Einzahlungsnetzwerk auswählen:",
             copy: "Kopieren",
+            ph_first_name: "Vorname",
+            ph_last_name: "Nachname",
+            ph_phone: "Telefon",
+            ph_ref_code: "Empfehlungscode (optional)",
+            ph_email: "E-Mail (z. B. user@mail.com)",
+            ph_password: "Passwort (mind. 6 Zeichen)",
+            ph_old_password: "Aktuelles Passwort",
+            ph_new_password: "Neues Passwort (mind. 6 Zeichen)",
+            auth_title_login: "Anmeldung im Konto",
+            auth_title_register: "Konto erstellen",
+            auth_title_forgot: "Passwort zurücksetzen",
+            auth_btn_login: "Anmelden",
+            auth_btn_register: "Registrieren",
+            auth_btn_forgot: "E-Mail senden",
+            auth_toggle_register: "Noch kein Konto? Registrieren",
+            auth_toggle_login: "Schon ein Konto? Anmelden",
+            auth_forgot: "Passwort vergessen?",
+            auth_back_login: "Zurück zur Anmeldung",
+            auth_enter_email: "E-Mail angeben",
+            auth_mail_sent: "Eine E-Mail wurde gesendet",
+            auth_fill_register: "Alle Registrierungsfelder ausfüllen",
+            auth_bad_phone: "Ungültiges Telefonformat. Beispiel: +380501234567",
+            auth_pw_min: "Das Passwort muss mindestens 6 Zeichen lang sein",
+            auth_error: "Anmeldefehler",
+            pw_fill_all: "Alle Passwortfelder ausfüllen",
+            pw_new_min: "Das neue Passwort muss mindestens 6 Zeichen lang sein",
+            pw_changed: "Passwort erfolgreich geändert!",
+            pw_error: "Fehler beim Ändern des Passworts",
+            bot_toggle_error: "Fehler beim Umschalten des Bots:",
+            bot_network_error: "Netzwerkfehler beim Umschalten des Bots",
+            bot_verify_confirm: "Für die Aktivierung eines erweiterten Bots (Pump-Dump, Testnet, Spekulant) ist eine Verifizierung über einen Messenger erforderlich. Zu WhatsApp/Telegram wechseln?",
+            loading: "Wird geladen...",
+            chart_start: "Start",
+            user_default: "Benutzername",
+            srv_bad_email: "Gültige E-Mail-Adresse eingeben",
+            srv_bad_phone: "Gültige Telefonnummer mit Ländervorwahl eingeben (z. B. +380501234567)",
+            srv_user_exists: "Ein Benutzer mit dieser E-Mail existiert bereits",
+            srv_email_pw: "E-Mail und Passwort angeben",
+            srv_user_not_found: "Benutzer nicht gefunden",
+            srv_wrong_pw: "Falsches Passwort",
+            srv_fill_all: "Alle Felder ausfüllen",
+            srv_wrong_current: "Aktuelles Passwort ist falsch",
+            srv_mail_not_found: "Diese E-Mail ist nicht registriert",
+            srv_wallet_not_found: "Wallet nicht gefunden",
+            srv_fill_withdraw: "Alle Auszahlungsfelder ausfüllen",
+            srv_no_funds: "Nicht genügend Guthaben",
+            srv_no_userid: "userId fehlt",
+            srv_bot_zero: "Der Bot kann bei einem Guthaben von null oder darunter nicht gestartet werden",
             bot_connect: "Konto mit Bot verbinden",
             bot_disconnect: "Konto vom Bot trennen",
             bot_running: "Status: Der Bot läuft und erzielt Gewinn",
@@ -683,6 +876,54 @@
             deposit_btn: "Wpłata",
             select_network: "Wybierz sieć wpłaty:",
             copy: "Kopiuj",
+            ph_first_name: "Imię",
+            ph_last_name: "Nazwisko",
+            ph_phone: "Telefon",
+            ph_ref_code: "Kod polecający (opcjonalnie)",
+            ph_email: "E-mail (np. user@mail.com)",
+            ph_password: "Hasło (min. 6 znaków)",
+            ph_old_password: "Obecne hasło",
+            ph_new_password: "Nowe hasło (min. 6 znaków)",
+            auth_title_login: "Logowanie do konta",
+            auth_title_register: "Rejestracja konta",
+            auth_title_forgot: "Odzyskiwanie hasła",
+            auth_btn_login: "Zaloguj się",
+            auth_btn_register: "Zarejestruj się",
+            auth_btn_forgot: "Wyślij wiadomość",
+            auth_toggle_register: "Nie masz konta? Zarejestruj się",
+            auth_toggle_login: "Masz już konto? Zaloguj się",
+            auth_forgot: "Nie pamiętasz hasła?",
+            auth_back_login: "Wróć do logowania",
+            auth_enter_email: "Podaj adres e-mail",
+            auth_mail_sent: "Wiadomość została wysłana na e-mail",
+            auth_fill_register: "Wypełnij wszystkie pola rejestracji",
+            auth_bad_phone: "Nieprawidłowy format telefonu. Przykład: +380501234567",
+            auth_pw_min: "Hasło musi mieć co najmniej 6 znaków",
+            auth_error: "Błąd autoryzacji",
+            pw_fill_all: "Wypełnij wszystkie pola hasła",
+            pw_new_min: "Nowe hasło musi mieć co najmniej 6 znaków",
+            pw_changed: "Hasło zostało zmienione!",
+            pw_error: "Błąd zmiany hasła",
+            bot_toggle_error: "Błąd przełączania bota:",
+            bot_network_error: "Błąd sieci podczas przełączania bota",
+            bot_verify_confirm: "Aby aktywować zaawansowanego bota (Pump-Dump, Testnet, Spekulant), wymagana jest weryfikacja przez komunikator. Przejść do WhatsApp/Telegram?",
+            loading: "Ładowanie...",
+            chart_start: "Start",
+            user_default: "Nazwa użytkownika",
+            srv_bad_email: "Podaj prawidłowy adres e-mail",
+            srv_bad_phone: "Podaj prawidłowy numer telefonu z kodem kraju (np. +380501234567)",
+            srv_user_exists: "Użytkownik z takim adresem e-mail już istnieje",
+            srv_email_pw: "Podaj e-mail i hasło",
+            srv_user_not_found: "Nie znaleziono użytkownika",
+            srv_wrong_pw: "Nieprawidłowe hasło",
+            srv_fill_all: "Wypełnij wszystkie pola",
+            srv_wrong_current: "Nieprawidłowe obecne hasło",
+            srv_mail_not_found: "Ten adres e-mail nie jest zarejestrowany",
+            srv_wallet_not_found: "Nie znaleziono portfela",
+            srv_fill_withdraw: "Wypełnij wszystkie pola wypłaty",
+            srv_no_funds: "Niewystarczające środki na koncie",
+            srv_no_userid: "Brak userId",
+            srv_bot_zero: "Nie można uruchomić bota przy zerowym lub ujemnym saldzie",
             bot_connect: "Połącz konto z botem",
             bot_disconnect: "Odłącz konto od bota",
             bot_running: "Status: bot działa i przynosi zysk",
@@ -740,6 +981,54 @@
             deposit_btn: "Vklad",
             select_network: "Vyberte síť pro vklad:",
             copy: "Kopírovat",
+            ph_first_name: "Jméno",
+            ph_last_name: "Příjmení",
+            ph_phone: "Telefon",
+            ph_ref_code: "Kód doporučení (nepovinné)",
+            ph_email: "E-mail (např. user@mail.com)",
+            ph_password: "Heslo (min. 6 znaků)",
+            ph_old_password: "Současné heslo",
+            ph_new_password: "Nové heslo (min. 6 znaků)",
+            auth_title_login: "Přihlášení do účtu",
+            auth_title_register: "Registrace účtu",
+            auth_title_forgot: "Obnovení hesla",
+            auth_btn_login: "Přihlásit se",
+            auth_btn_register: "Zaregistrovat se",
+            auth_btn_forgot: "Odeslat e-mail",
+            auth_toggle_register: "Nemáte účet? Zaregistrujte se",
+            auth_toggle_login: "Už máte účet? Přihlaste se",
+            auth_forgot: "Zapomněli jste heslo?",
+            auth_back_login: "Zpět na přihlášení",
+            auth_enter_email: "Zadejte e-mail",
+            auth_mail_sent: "E-mail byl odeslán",
+            auth_fill_register: "Vyplňte všechna pole registrace",
+            auth_bad_phone: "Neplatný formát telefonu. Příklad: +380501234567",
+            auth_pw_min: "Heslo musí mít alespoň 6 znaků",
+            auth_error: "Chyba přihlášení",
+            pw_fill_all: "Vyplňte všechna pole hesla",
+            pw_new_min: "Nové heslo musí mít alespoň 6 znaků",
+            pw_changed: "Heslo bylo úspěšně změněno!",
+            pw_error: "Chyba změny hesla",
+            bot_toggle_error: "Chyba přepnutí bota:",
+            bot_network_error: "Chyba sítě při přepínání bota",
+            bot_verify_confirm: "K aktivaci pokročilého bota (Pump-Dump, Testnet, Spekulant) je nutné ověření přes messenger. Přejít na WhatsApp/Telegram?",
+            loading: "Načítání...",
+            chart_start: "Start",
+            user_default: "Uživatelské jméno",
+            srv_bad_email: "Zadejte platnou e-mailovou adresu",
+            srv_bad_phone: "Zadejte platné telefonní číslo s předvolbou země (např. +380501234567)",
+            srv_user_exists: "Uživatel s tímto e-mailem již existuje",
+            srv_email_pw: "Zadejte e-mail a heslo",
+            srv_user_not_found: "Uživatel nenalezen",
+            srv_wrong_pw: "Nesprávné heslo",
+            srv_fill_all: "Vyplňte všechna pole",
+            srv_wrong_current: "Nesprávné současné heslo",
+            srv_mail_not_found: "Tento e-mail není registrován",
+            srv_wallet_not_found: "Peněženka nenalezena",
+            srv_fill_withdraw: "Vyplňte všechna pole pro výběr",
+            srv_no_funds: "Nedostatek prostředků na zůstatku",
+            srv_no_userid: "Chybí userId",
+            srv_bot_zero: "Bota nelze spustit při nulovém nebo záporném zůstatku",
             bot_connect: "Připojit účet k botovi",
             bot_disconnect: "Odpojit účet od bota",
             bot_running: "Stav: bot běží a generuje zisk",
@@ -797,6 +1086,54 @@
             deposit_btn: "Dépôt",
             select_network: "Sélectionnez le réseau de dépôt :",
             copy: "Copier",
+            ph_first_name: "Prénom",
+            ph_last_name: "Nom",
+            ph_phone: "Téléphone",
+            ph_ref_code: "Code de parrainage (facultatif)",
+            ph_email: "E-mail (par ex. user@mail.com)",
+            ph_password: "Mot de passe (min. 6 caractères)",
+            ph_old_password: "Mot de passe actuel",
+            ph_new_password: "Nouveau mot de passe (min. 6 caractères)",
+            auth_title_login: "Connexion à votre compte",
+            auth_title_register: "Création de compte",
+            auth_title_forgot: "Récupération du mot de passe",
+            auth_btn_login: "Se connecter",
+            auth_btn_register: "S'inscrire",
+            auth_btn_forgot: "Envoyer l'e-mail",
+            auth_toggle_register: "Pas de compte ? Inscrivez-vous",
+            auth_toggle_login: "Déjà un compte ? Connectez-vous",
+            auth_forgot: "Mot de passe oublié ?",
+            auth_back_login: "Retour à la connexion",
+            auth_enter_email: "Saisissez votre e-mail",
+            auth_mail_sent: "Un e-mail a été envoyé",
+            auth_fill_register: "Remplissez tous les champs d'inscription",
+            auth_bad_phone: "Format de téléphone invalide. Exemple : +380501234567",
+            auth_pw_min: "Le mot de passe doit contenir au moins 6 caractères",
+            auth_error: "Erreur d'authentification",
+            pw_fill_all: "Remplissez tous les champs de mot de passe",
+            pw_new_min: "Le nouveau mot de passe doit contenir au moins 6 caractères",
+            pw_changed: "Mot de passe modifié avec succès !",
+            pw_error: "Erreur de changement de mot de passe",
+            bot_toggle_error: "Erreur de basculement du bot :",
+            bot_network_error: "Erreur réseau lors du basculement du bot",
+            bot_verify_confirm: "Pour activer un bot avancé (Pump-Dump, Testnet, Spéculateur), une vérification via une messagerie est requise. Aller sur WhatsApp/Telegram ?",
+            loading: "Chargement...",
+            chart_start: "Début",
+            user_default: "Nom d'utilisateur",
+            srv_bad_email: "Saisissez une adresse e-mail valide",
+            srv_bad_phone: "Saisissez un numéro de téléphone valide avec l'indicatif du pays (par ex. +380501234567)",
+            srv_user_exists: "Un utilisateur avec cet e-mail existe déjà",
+            srv_email_pw: "Saisissez votre e-mail et votre mot de passe",
+            srv_user_not_found: "Utilisateur introuvable",
+            srv_wrong_pw: "Mot de passe incorrect",
+            srv_fill_all: "Remplissez tous les champs",
+            srv_wrong_current: "Mot de passe actuel incorrect",
+            srv_mail_not_found: "Cet e-mail n'est pas enregistré",
+            srv_wallet_not_found: "Portefeuille introuvable",
+            srv_fill_withdraw: "Remplissez tous les champs du retrait",
+            srv_no_funds: "Solde insuffisant",
+            srv_no_userid: "userId manquant",
+            srv_bot_zero: "Impossible de démarrer le bot avec un solde nul ou négatif",
             bot_connect: "Connecter le compte au bot",
             bot_disconnect: "Déconnecter le compte du bot",
             bot_running: "Statut : le bot fonctionne et génère des profits",
@@ -892,9 +1229,7 @@
     });
 
     function toggleModeForRef(refCode) {
-        document.getElementById("authTitle").innerText = "Регистрация аккаунта";
-        document.getElementById("authBtn").innerText = "Зарегистрироваться";
-        document.getElementById("toggleModeBtn").innerText = "Уже есть аккаунт? Войти";
+        applyAuthTexts();
         document.getElementById("forgotPasswordBtn").classList.add("hidden");
         document.getElementById("password").classList.remove("hidden");
         document.getElementById("registerFields").classList.remove("hidden");
@@ -917,6 +1252,15 @@
         document.getElementById("withdrawAddress").placeholder = dict.wd_address_ph;
         document.getElementById("withdrawAmount").placeholder = dict.wd_amount_ph;
         refreshSelectedCoinTitle();
+        applyAuthTexts();
+        document.documentElement.lang = lang;
+        if (!currentCoin) document.getElementById("selectedCoinTitle").innerText = dict.deposit_address + ":";
+        if (!currentUser) {
+            document.getElementById("userNameDisplay").innerText = dict.user_default;
+            document.getElementById("botBtn").innerText = dict.bot_connect;
+            document.getElementById("statIntervalLabel").innerText = dict.interval_prefix + " 18 " + dict.interval_hours;
+            document.getElementById("refStatsText").innerText = dict.ref_invited + " 0 | " + dict.ref_earned + " $0.00";
+        }
         
         if (currentUser) {
             updateBotUIDynamic(currentUser);
@@ -931,17 +1275,64 @@
             const data = await res.json();
             if (data && data.country_code && countryPhoneMasks[data.country_code]) {
                 const mask = countryPhoneMasks[data.country_code];
-                document.getElementById('phone').placeholder = `Телефон (${mask.example})`;
+                phoneExample = mask.example;
+                applyAuthTexts();
             }
         } catch (e) {}
+    }
+
+    const SERVER_MSG = {
+        'Заполните все поля регистрации': 'auth_fill_register',
+        'Введите корректный email адрес': 'srv_bad_email',
+        'Введите правильный телефон в формате с кодом страны (например, +380501234567)': 'srv_bad_phone',
+        'Пароль должен содержать не менее 6 символов': 'auth_pw_min',
+        'Пользователь с таким email уже существует': 'srv_user_exists',
+        'Укажите email и пароль': 'srv_email_pw',
+        'Пользователь не найден': 'srv_user_not_found',
+        'Неверный пароль': 'srv_wrong_pw',
+        'Заполните все поля': 'srv_fill_all',
+        'Новый пароль должен быть не менее 6 символов': 'pw_new_min',
+        'Неверный текущий пароль': 'srv_wrong_current',
+        'Укажите email': 'auth_enter_email',
+        'Почта не зарегистрирована': 'srv_mail_not_found',
+        'На почту отправлено письмо': 'auth_mail_sent',
+        'Кошелек не найден': 'srv_wallet_not_found',
+        'Заполните все поля для вывода': 'srv_fill_withdraw',
+        'Недостаточно средств на балансе': 'srv_no_funds',
+        'Не указан userId': 'srv_no_userid',
+        'Невозможно запустить бота при нулевом или отрицательном балансе': 'srv_bot_zero'
+    };
+
+    function i18n() { return translations[currentLang] || translations.ru; }
+
+    // Translates a Russian error text coming from the server; unknown texts are returned as is.
+    function srvMsg(msg) {
+        if (!msg) return '';
+        const key = SERVER_MSG[msg];
+        const d = i18n();
+        return (key && d[key]) ? d[key] : msg;
+    }
+
+    function applyAuthTexts() {
+        const d = i18n();
+        document.getElementById("authTitle").innerText = isForgotMode ? d.auth_title_forgot : (isRegisterMode ? d.auth_title_register : d.auth_title_login);
+        document.getElementById("authBtn").innerText = isForgotMode ? d.auth_btn_forgot : (isRegisterMode ? d.auth_btn_register : d.auth_btn_login);
+        document.getElementById("toggleModeBtn").innerText = isRegisterMode ? d.auth_toggle_login : d.auth_toggle_register;
+        document.getElementById("forgotPasswordBtn").innerText = isForgotMode ? d.auth_back_login : d.auth_forgot;
+        document.getElementById("firstName").placeholder = d.ph_first_name;
+        document.getElementById("lastName").placeholder = d.ph_last_name;
+        document.getElementById("phone").placeholder = d.ph_phone + " (" + phoneExample + ")";
+        document.getElementById("refCodeInput").placeholder = d.ph_ref_code;
+        document.getElementById("email").placeholder = d.ph_email;
+        document.getElementById("password").placeholder = d.ph_password;
+        document.getElementById("oldPassword").placeholder = d.ph_old_password;
+        document.getElementById("newPassword").placeholder = d.ph_new_password;
     }
 
     function toggleMode() {
         isRegisterMode = !isRegisterMode;
         isForgotMode = false;
-        document.getElementById("authTitle").innerText = isRegisterMode ? "Регистрация аккаунта" : "Вход в кабинет";
-        document.getElementById("authBtn").innerText = isRegisterMode ? "Зарегистрироваться" : "Войти в систему";
-        document.getElementById("toggleModeBtn").innerText = isRegisterMode ? "Уже есть аккаунт? Войти" : "Нет аккаунта? Зарегистрироваться";
+        applyAuthTexts();
         document.getElementById("forgotPasswordBtn").classList.toggle("hidden", isRegisterMode);
         document.getElementById("password").classList.remove("hidden");
         document.getElementById("registerFields").classList.toggle("hidden", !isRegisterMode);
@@ -952,10 +1343,8 @@
     function toggleForgotMode() {
         isForgotMode = !isForgotMode;
         isRegisterMode = false;
-        document.getElementById("authTitle").innerText = isForgotMode ? "Восстановление пароля" : "Вход в кабинет";
-        document.getElementById("authBtn").innerText = isForgotMode ? "Отправить письмо" : "Войти в систему";
+        applyAuthTexts();
         document.getElementById("toggleModeBtn").classList.toggle("hidden", isForgotMode);
-        document.getElementById("forgotPasswordBtn").innerText = isForgotMode ? "Вернуться к входу" : "Забыли пароль?";
         document.getElementById("password").classList.toggle("hidden", isForgotMode);
         document.getElementById("registerFields").classList.add("hidden");
         document.getElementById("authError").innerText = "";
@@ -973,7 +1362,7 @@
 
         if (isForgotMode) {
             if (!email) {
-                errDiv.innerText = "Укажите email";
+                errDiv.innerText = i18n().auth_enter_email;
                 return;
             }
             const res = await fetch("/api/forgot-password", {
@@ -983,9 +1372,9 @@
             });
             const data = await res.json();
             if (res.ok) {
-                succDiv.innerText = "На почту отправлено письмо";
+                succDiv.innerText = i18n().auth_mail_sent;
             } else {
-                errDiv.innerText = data.error || "Почта не зарегистрирована";
+                errDiv.innerText = srvMsg(data.error) || i18n().srv_mail_not_found;
             }
             return;
         }
@@ -998,18 +1387,18 @@
             const refCode = document.getElementById("refCodeInput").value.trim();
 
             if (!firstName || !lastName || !phone) {
-                errDiv.innerText = "Заполните все поля регистрации";
+                errDiv.innerText = i18n().auth_fill_register;
                 return;
             }
 
             const phoneRegex = /^\+[1-9]\d{9,14}$/;
             if (!phoneRegex.test(phone)) {
-                errDiv.innerText = "Неверный формат телефона. Пример: +380501234567";
+                errDiv.innerText = i18n().auth_bad_phone;
                 return;
             }
 
             if (password.length < 6) {
-                errDiv.innerText = "Пароль должен быть не менее 6 символов";
+                errDiv.innerText = i18n().auth_pw_min;
                 return;
             }
 
@@ -1033,7 +1422,7 @@
             loginSuccessFlow(currentUser);
         } else {
             const err = await res.json();
-            errDiv.innerText = err.error || "Ошибка авторизации";
+            errDiv.innerText = srvMsg(err.error) || i18n().auth_error;
         }
     }
 
@@ -1066,7 +1455,7 @@
     function onBotTypeChange() {
         const botType = document.getElementById("botTypeSelect").value;
         if (botType !== 'basic') {
-            const action = confirm("Для активации расширенного бота (Памп-Дамп, Тестнет, Спекулянт) требуется верификация через мессенджер. Перейти в WhatsApp/Telegram?");
+            const action = confirm(i18n().bot_verify_confirm);
             if (action) {
                 window.location.href = "https://t.me/your_bot_manager_link"; 
             } else {
@@ -1231,7 +1620,7 @@
         });
 
         if (labels.length === 0) {
-            labels.push('Старт');
+            labels.push(i18n().chart_start);
             dataPoints.push(currentUser ? currentUser.balance : 0);
         }
 
@@ -1370,7 +1759,7 @@
             loadHistory();
         } else {
             const err = await res.json();
-            alert(err.error || (translations[currentLang] || translations.ru).wd_error);
+            alert(srvMsg(err.error) || i18n().wd_error);
         }
     }
 
@@ -1384,11 +1773,11 @@
         succDiv.innerText = "";
 
         if (!oldPassword || !newPassword) {
-            errDiv.innerText = "Заполните все поля пароля";
+            errDiv.innerText = i18n().pw_fill_all;
             return;
         }
         if (newPassword.length < 6) {
-            errDiv.innerText = "Новый пароль должен быть не менее 6 символов";
+            errDiv.innerText = i18n().pw_new_min;
             return;
         }
 
@@ -1399,12 +1788,12 @@
         });
 
         if (res.ok) {
-            succDiv.innerText = "Пароль успешно изменен!";
+            succDiv.innerText = i18n().pw_changed;
             document.getElementById("oldPassword").value = "";
             document.getElementById("newPassword").value = "";
         } else {
             const err = await res.json();
-            errDiv.innerText = err.error || "Ошибка смены пароля";
+            errDiv.innerText = srvMsg(err.error) || i18n().pw_error;
         }
     }
 
@@ -1430,10 +1819,10 @@
                 updateBotUIDynamic(currentUser);
             } else {
                 const errData = await res.json();
-                alert("Ошибка переключения бота: " + (errData.error || res.status));
+                alert(i18n().bot_toggle_error + " " + (srvMsg(errData.error) || res.status));
             }
         } catch (e) {
-            alert("Ошибка сети при переключении бота");
+            alert(i18n().bot_network_error);
         }
     }
 </script>
