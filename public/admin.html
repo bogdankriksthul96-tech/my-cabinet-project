@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM / Панель администратора</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #090d16;
+            --card-bg: #131b2e;
+            --card-border: #1e293b;
+            --accent-blue: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1250px;
+            margin: 0 auto;
+        }
+
+        /* Окно авторизации */
+        #authModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 30px;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .auth-card h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        .auth-card input {
+            margin-bottom: 15px;
+        }
+
+        .auth-card button {
+            width: 100%;
+            padding: 10px;
+            font-size: 15px;
+        }
+
+        #adminContent {
+            display: none;
+        }
+
+        h1, h2 {
+            font-weight: 700;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            background: #0b111d;
+            border: 1px solid var(--card-border);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .comment-input {
+            background: #1e293b !important;
+            border: 1px solid #3b82f6 !important;
+            color: #60a5fa !important;
+            font-weight: 500;
+        }
+
+        button {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .btn-deposit { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+
+        .flex-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Модальное окно авторизации -->
+    <div id="authModal">
+        <div class="auth-card">
+            <h2>Доступ к админке</h2>
+            <input type="password" id="adminPasswordInput" placeholder="Введите пароль">
+            <button onclick="checkAdminPassword()">Войти</button>
+            <div id="authError" style="color: var(--danger); font-size: 13px; margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Основной контент админки -->
+    <div class="container" id="adminContent">
+        <h1>CRM / Панель администратора</h1>
+
+        <div class="card">
+            <h2>Запросы на пополнение депозита</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email пользователя</th>
+                        <th>Сеть / Коин</th>
+                        <th>Сумма ($)</th>
+                        <th>Комментарий / Метка</th>
+                        <th>Статус</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="depositsTable">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Запросы на вывод средств</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Email пользователя</th>
+                        <th>Коин</th>
+                        <th>Сумма</th>
+                        <th>Адрес кошелька</th>
+                        <th>Статус</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="withdrawalsTable">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Управление пользователями (Прямое пополнение и настройки)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Имя / Email</th>
+                        <th>Телефон</th>
+                        <th>Баланс ($)</th>
+                        <th>Доход (% / интервал)</th>
+                        <th>Быстрый депозит</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable">
+                    <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Загрузка...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    const ADMIN_PASS = '258963147';
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('admin_auth') === 'true') {
+            unlockAdmin();
+        }
+    });
+
+    function checkAdminPassword() {
+        const val = document.getElementById('adminPasswordInput').value;
+        if (val === ADMIN_PASS) {
+            localStorage.setItem('admin_auth', 'true');
+            unlockAdmin();
+        } else {
+            document.getElementById('authError').innerText = 'Неверный пароль!';
+        }
+    }
+
+    function unlockAdmin() {
+        document.getElementById('authModal').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+        loadDeposits();
+        loadWithdrawals();
+        loadUsers();
+    }
+
+    async function loadDeposits() {
+        const res = await fetch('/api/admin/deposits-req');
+        const rows = await res.json();
+        const tbody = document.getElementById('depositsTable');
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Нет запросов</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.email}</td>
+                <td>${r.coin}</td>
+                <td><input type="number" id="dep_amount_${r.id}" value="${r.amount || 0}" style="width: 90px;"></td>
+                <td><input type="text" id="dep_comment_${r.id}" class="comment-input" value="${r.address && !r.address.startsWith('0x') && !r.address.startsWith('T') ? r.address : 'Бонус / Пополнение'}" placeholder="Введите комментарий" style="width: 200px;"></td>
+                <td>
+                    <select id="dep_status_${r.id}">
+                        <option value="Ожидает оплаты" ${r.status === 'Ожидает оплаты' ? 'selected' : ''}>Ожидает оплаты</option>
+                        <option value="Оплачено" ${r.status === 'Оплачено' ? 'selected' : ''}>Оплачено</option>
+                        <option value="Отменено" ${r.status === 'Отменено' ? 'selected' : ''}>Отменено</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn-success" onclick="updateDeposit(${r.id})">Сохранить</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function updateDeposit(id) {
+        const amount = document.getElementById(`dep_amount_${id}`).value;
+        const comment = document.getElementById(`dep_comment_${id}`).value;
+        const status = document.getElementById(`dep_status_${id}`).value;
+
+        const res = await fetch('/api/admin/deposit/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, status, amount, comment })
+        });
+
+        if (res.ok) {
+            alert("Депозит успешно обновлен!");
+            loadDeposits();
+        } else {
+            alert("Ошибка обновления");
+        }
+    }
+
+    async function loadWithdrawals() {
+        const res = await fetch('/api/admin/withdrawals');
+        const rows = await res.json();
+        const tbody = document.getElementById('withdrawalsTable');
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Нет запросов</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map(r => `
+            <tr>
+                <td>${r.id}</td>
+                <td>${r.email}</td>
+                <td>${r.coin}</td>
+                <td>$${r.amount}</td>
+                <td style="font-family: monospace; font-size: 12px; color: #60a5fa;">${r.address}</td>
+                <td>
+                    <select id="wd_status_${r.id}">
+                        <option value="В обработке" ${r.status === 'В обработке' ? 'selected' : ''}>В обработке</option>
+                        <option value="Выполнено" ${r.status === 'Выполнено' ? 'selected' : ''}>Выполнено</option>
+                        <option value="Отклонено" ${r.status === 'Отклонено' ? 'selected' : ''}>Отклонено</option>
+                    </select>
+                </td>
+                <td>
+                    <button class="btn-success" onclick="updateWithdrawal(${r.id})">OK</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function updateWithdrawal(id) {
+        const status = document.getElementById(`wd_status_${id}`).value;
+        const res = await fetch('/api/admin/withdrawal/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, status })
+        });
+        if (res.ok) {
+            alert("Статус вывода обновлен!");
+            loadWithdrawals();
+        }
+    }
+
+    async function loadUsers() {
+        const res = await fetch('/api/admin/users');
+        const rows = await res.json();
+        const tbody = document.getElementById('usersTable');
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Нет пользователей</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map(u => `
+            <tr>
+                <td>${u.id}</td>
+                <td><b>${u.first_name || ''} ${u.last_name || ''}</b><br><span style="font-size:12px; color:var(--text-muted);">${u.email}</span></td>
+                <td>${u.phone || '—'}</td>
+                <td><input type="number" id="user_bal_${u.id}" value="${u.balance}" style="width: 90px;"></td>
+                <td>
+                    <div class="flex-row">
+                        <input type="number" id="user_amt_${u.id}" value="${u.amount}" style="width: 65px;" step="0.05"> % / 
+                        <input type="number" id="user_sec_${u.id}" value="${u.interval_seconds}" style="width: 75px;" title="Секунды"> сек
+                    </div>
+                </td>
+                <td>
+                    <div class="flex-row">
+                        <input type="number" id="add_dep_amt_${u.id}" placeholder="Сумма $" style="width: 80px;" value="100">
+                        <input type="text" id="add_dep_comm_${u.id}" placeholder="Комментарий" class="comment-input" style="width: 130px;" value="Бонус от админа">
+                        <button class="btn-deposit" onclick="adminAddDeposit(${u.id})">+ Депозит</button>
+                    </div>
+                </td>
+                <td class="flex-row">
+                    <button onclick="updateUser(${u.id})">Сохранить</button>
+                    <button class="btn-danger" onclick="deleteUser(${u.id})">Удалить</button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    async function adminAddDeposit(userId) {
+        const amountInput = document.getElementById(`add_dep_amt_${userId}`);
+        const commentInput = document.getElementById(`add_dep_comm_${userId}`);
+        
+        const amount = parseFloat(amountInput.value);
+        const comment = commentInput.value;
+
+        if (isNaN(amount) || amount <= 0) {
+            alert("Введите корректную сумму депозита");
+            return;
+        }
+
+        const res = await fetch('/api/admin/user/deposit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, amount, comment })
+        });
+
+        if (res.ok) {
+            alert(`Депозит на сумму $${amount} успешно зачислен пользователю!`);
+            loadUsers();
+            loadDeposits();
+        } else {
+            const err = await res.json();
+            alert(err.error || "Ошибка зачисления депозита");
+        }
+    }
+
+    async function updateUser(userId) {
+        const balance = document.getElementById(`user_bal_${userId}`).value;
+        const amount = document.getElementById(`user_sec_${userId}`).value ? document.getElementById(`user_amt_${userId}`).value : 1.25;
+        const interval_seconds = document.getElementById(`user_sec_${userId}`).value || 86400;
+
+        const res = await fetch('/api/admin/user/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId, balance, amount, interval_seconds })
+        });
+
+        if (res.ok) {
+            alert("Данные пользователя обновлены!");
+            loadUsers();
+        } else {
+            alert("Ошибка сохранения");
+        }
+    }
+
+    async function deleteUser(userId) {
+        if (!confirm("Вы уверены, что хотите удалить пользователя?")) return;
+        const res = await fetch('/api/admin/user/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId })
+        });
+        if (res.ok) {
+            loadUsers();
+            loadDeposits();
+            loadWithdrawals();
+        }
+    }
+</script>
+</body>
+</html>
