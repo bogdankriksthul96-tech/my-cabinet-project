@@ -198,6 +198,16 @@
         #walletModal .wm-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
         #walletModal .wm-coin { width:110px; font-weight:600; flex-shrink:0; }
         #walletModal input { flex:1; font-family:monospace; font-size:12px; }
+        /* Компактная таблица пользователей */
+        .users-table { table-layout: auto; font-size: 13px; }
+        .users-table th, .users-table td { padding: 8px 6px; vertical-align: middle; }
+        .users-table th { font-size: 11px; }
+        .users-table input { padding: 6px 8px; font-size: 13px; }
+        .users-table .u-contact { max-width: 190px; overflow-wrap: anywhere; }
+        .users-table .flex-row { flex-wrap: wrap; gap: 6px; }
+        .users-table .dep-cell { display: flex; flex-wrap: wrap; gap: 6px; width: 210px; }
+        .users-table .act-grid { display: grid; grid-template-columns: repeat(2, auto); gap: 6px; width: max-content; }
+        .users-table button { padding: 7px 10px; font-size: 12px; white-space: nowrap; }
     </style>
 </head>
 <body>
@@ -276,7 +286,7 @@
 
         <div class="card">
             <h2>Управление пользователями (Прямое пополнение и настройки)</h2>
-            <table>
+            <table class="users-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -430,28 +440,28 @@
         tbody.innerHTML = rows.map(u => `
             <tr>
                 <td>${u.id}</td>
-                <td><b>${u.first_name || ''} ${u.last_name || ''}</b><br><span style="font-size:12px; color:var(--text-muted);">${u.email}</span></td>
+                <td class="u-contact"><b>${u.first_name || ''} ${u.last_name || ''}</b><br><span style="font-size:12px; color:var(--text-muted);">${u.email}</span></td>
                 <td>${u.phone || '—'}</td>
-                <td><input type="number" id="user_bal_${u.id}" value="${u.balance}" style="width: 90px;"></td>
+                <td><input type="number" id="user_bal_${u.id}" value="${u.balance}" style="width: 105px;"></td>
                 <td>
                     <div class="flex-row">
-                        <input type="number" id="user_amt_${u.id}" value="${u.amount}" style="width: 65px;" step="0.05"> % / 
-                        <input type="number" id="user_sec_${u.id}" value="${u.interval_seconds}" style="width: 75px;" title="Секунды"> сек
+                        <input type="number" id="user_amt_${u.id}" value="${u.amount}" style="width: 58px;" step="0.05"> % / 
+                        <input type="number" id="user_sec_${u.id}" value="${u.interval_seconds}" style="width: 62px;" title="Секунды"> сек
                     </div>
                 </td>
                 <td>
-                    <div class="flex-row">
-                        <input type="number" id="add_dep_amt_${u.id}" placeholder="Сумма $" style="width: 80px;" value="100">
-                        <input type="text" id="add_dep_comm_${u.id}" placeholder="Комментарий" class="comment-input" style="width: 130px;" value="Бонус от админа">
+                    <div class="dep-cell">
+                        <input type="number" id="add_dep_amt_${u.id}" placeholder="Сумма $" style="width: 70px;" value="100">
                         <button class="btn-deposit" onclick="adminAddDeposit(${u.id})">+ Депозит</button>
+                        <input type="text" id="add_dep_comm_${u.id}" placeholder="Комментарий" class="comment-input" style="width: 100%;" value="Бонус от админа">
                     </div>
                 </td>
-                <td class="flex-row">
+                <td><div class="act-grid">
                     <button class="btn-wallet" onclick="walletOpen(${u.id})">Кошельки</button>
                     <button class="btn-chat" onclick="adminChatOpen(${u.id}, true)">Чат</button>
                     <button onclick="updateUser(${u.id})">Сохранить</button>
                     <button class="btn-danger" onclick="deleteUser(${u.id})">Удалить</button>
-                </td>
+                </div></td>
             </tr>
         `).join('');
     }
