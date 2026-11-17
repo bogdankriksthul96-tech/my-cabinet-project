@@ -192,6 +192,12 @@
         .chat-admin-input textarea:focus { border-color: var(--accent-blue); }
         .chat-admin-input button { height: 44px; padding: 0 20px; }
         .chat-admin-input button:disabled, .chat-admin-input textarea:disabled { opacity: 0.5; cursor: default; }
+        .btn-wallet { background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%); }
+        #walletModal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:9999; align-items:center; justify-content:center; }
+        #walletModal .wm-box { background:var(--card-bg, #1e293b); color:inherit; border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:20px; width:640px; max-width:94vw; max-height:90vh; overflow:auto; }
+        #walletModal .wm-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+        #walletModal .wm-coin { width:110px; font-weight:600; flex-shrink:0; }
+        #walletModal input { flex:1; font-family:monospace; font-size:12px; }
     </style>
 </head>
 <body>
@@ -441,6 +447,7 @@
                     </div>
                 </td>
                 <td class="flex-row">
+                    <button class="btn-wallet" onclick="walletOpen(${u.id})">Кошельки</button>
                     <button class="btn-chat" onclick="adminChatOpen(${u.id}, true)">Чат</button>
                     <button onclick="updateUser(${u.id})">Сохранить</button>
                     <button class="btn-danger" onclick="deleteUser(${u.id})">Удалить</button>
@@ -749,6 +756,48 @@
         btn.disabled = false;
         input.focus();
     }
+</script>
+<div id="walletModal" onclick="if(event.target===this)walletClose()">
+  <div class="wm-box">
+    <h3 style="margin-top:0">Кошельки пользователя <span id="wmUser"></span></h3>
+    <div id="wmList"></div>
+    <div style="margin-top:14px; display:flex; gap:8px; justify-content:flex-end;">
+      <button class="btn-danger" onclick="walletClose()">Закрыть</button>
+    </div>
+  </div>
+</div>
+<script>
+  var walletUserId = null;
+  function walletClose() { document.getElementById('walletModal').style.display = 'none'; }
+  async function walletOpen(userId) {
+    walletUserId = userId;
+    document.getElementById('wmUser').textContent = '#' + userId;
+    const list = document.getElementById('wmList');
+    list.textContent = 'Загрузка...';
+    document.getElementById('walletModal').style.display = 'flex';
+    try {
+      const rows = await (await fetch('/api/admin/wallets/' + userId)).json();
+      list.textContent = '';
+      rows.forEach(function (w) {
+        const row = document.createElement('div'); row.className = 'wm-row';
+        const name = document.createElement('div'); name.className = 'wm-coin'; name.textContent = w.coin;
+        const inp = document.createElement('input'); inp.type = 'text'; inp.value = w.address || '';
+        const btn = document.createElement('button'); btn.textContent = 'Сохранить';
+        btn.onclick = function () { walletSave(w.coin, inp, btn); };
+        row.appendChild(name); row.appendChild(inp); row.appendChild(btn); list.appendChild(row);
+      });
+    } catch (e) { list.textContent = 'Ошибка загрузки'; }
+  }
+  async function walletSave(coin, inp, btn) {
+    const address = inp.value.trim();
+    if (!address) { alert('Адрес не может быть пустым'); return; }
+    const res = await fetch('/api/admin/wallet/update', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId: walletUserId, coin: coin, address: address })
+    });
+    if (res.ok) { const t = btn.textContent; btn.textContent = 'Сохранено ✓'; setTimeout(function () { btn.textContent = t; }, 1500); }
+    else alert('Ошибка сохранения');
+  }
 </script>
 </body>
 </html>
