@@ -1572,8 +1572,12 @@
         }
     }
 
+    function fmtMoney(v) {
+        return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(Number(v) || 0);
+    }
+
     function loginSuccessFlow(user) {
-        document.getElementById("userBalance").innerText = "$" + Number(user.balance).toFixed(2);
+        document.getElementById("userBalance").innerText = "$" + fmtMoney(user.balance);
         document.getElementById("botTypeSelect").value = user.bot_type || 'basic';
         document.getElementById("userNameDisplay").innerText = `${user.first_name || ''} ${user.last_name || ''}`.trim();
         document.getElementById("userEmailDisplay").innerText = user.email || '';
@@ -1681,7 +1685,7 @@
             const list = document.getElementById("referralList");
             const dict = translations[currentLang] || translations.ru;
 
-            document.getElementById("refStatsText").innerText = `${dict.ref_invited} ${data.totalCount || 0} | ${dict.ref_earned} $${Number(data.totalEarned || 0).toFixed(2)}`;
+            document.getElementById("refStatsText").innerText = `${dict.ref_invited} ${data.totalCount || 0} | ${dict.ref_earned} $${fmtMoney(data.totalEarned || 0)}`;
 
             if (!data.referrals || data.referrals.length === 0) {
                 list.innerHTML = `<div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 8px;">${dict.no_referrals}</div>`;
@@ -1735,7 +1739,7 @@
 
             let displayAmount = '';
             if (tx.amount > 0) {
-                displayAmount = sign + '$' + Number(tx.amount).toFixed(2);
+                displayAmount = sign + '$' + fmtMoney(tx.amount);
             } else if (tx.status === 'Ожидает оплаты' || tx.status === 'В обработке') {
                 displayAmount = dict.waiting_text;
             } else {
@@ -1804,7 +1808,7 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                return ' $' + context.raw.toFixed(2);
+                                return ' $' + fmtMoney(context.raw);
                             }
                         }
                     }
@@ -1899,7 +1903,7 @@
             const data = await res.json();
             currentUser.balance = data.newBalance;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            document.getElementById("userBalance").innerText = "$" + Number(currentUser.balance).toFixed(2);
+            document.getElementById("userBalance").innerText = "$" + fmtMoney(currentUser.balance);
             
             document.getElementById("withdrawAddress").value = "";
             document.getElementById("withdrawAmount").value = "";

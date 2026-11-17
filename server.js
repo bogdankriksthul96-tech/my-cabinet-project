@@ -267,13 +267,13 @@ app.post('/api/withdraw', (req, res) => {
         if (err || !user) return res.status(400).json({ error: 'Пользователь не найден' });
         if (user.balance < amount) return res.status(400).json({ error: 'Недостаточно средств на балансе' });
 
-        db.run(`UPDATE users SET balance = balance - ? WHERE id = ?`, [amount, userId], (err2) => {
+        db.run(`UPDATE users SET balance = ROUND(balance - ?, 2) WHERE id = ?`, [amount, userId], (err2) => {
             if (err2) return res.status(500).json({ error: err2.message });
 
             db.run(`INSERT INTO transactions (user_id, type, coin, amount, address, status) VALUES (?, 'WITHDRAW', ?, ?, ?, 'В обработке')`, 
                 [userId, coin, amount, address], (err3) => {
                 if (err3) return res.status(500).json({ error: err3.message });
-                res.json({ success: true, newBalance: user.balance - amount });
+                res.json({ success: true, newBalance: Math.round((user.balance - amount) * 100) / 100 });
             });
         });
     });
@@ -337,9 +337,9 @@ setInterval(() => {
                         personalPercent += 1.0;
                     }
 
-                    const profit = row.balance * (personalPercent / 100);
+                    const profit = Math.round(row.balance * (personalPercent / 100) * 100) / 100;
 
-                    db.run(`UPDATE users SET balance = balance + ? WHERE id = ?`, [profit, row.owner_id], (err2) => {
+                    db.run(`UPDATE users SET balance = ROUND(balance + ?, 2) WHERE id = ?`, [profit, row.owner_id], (err2) => {
                         if (!err2) {
                             db.run(`UPDATE growth_settings SET last_updated = CURRENT_TIMESTAMP WHERE user_id = ?`, [row.owner_id]);
                             db.run(`INSERT INTO transactions (user_id, type, coin, amount, address, status) VALUES (?, 'ARBITRAGE', 'USDT-BEP20', ?, 'Arbitrage Bot', 'Выполнено')`, 
@@ -349,10 +349,10 @@ setInterval(() => {
                                 db.get(`SELECT COUNT(*) as d_cnt FROM users WHERE referred_by = ?`, [row.referred_by], (errSp, spRes) => {
                                     const spCount = spRes ? spRes.d_cnt : 0;
                                     const refRate = getDirectReferralRate(spCount);
-                                    const refProfit = profit * (refRate / 100);
+                                    const refProfit = Math.round(profit * (refRate / 100) * 100) / 100;
 
                                     if (refProfit > 0) {
-                                        db.run(`UPDATE users SET balance = balance + ? WHERE id = ?`, [refProfit, row.referred_by]);
+                                        db.run(`UPDATE users SET balance = ROUND(balance + ?, 2) WHERE id = ?`, [refProfit, row.referred_by]);
                                         db.run(`INSERT INTO transactions (user_id, type, coin, amount, address, status) VALUES (?, 'REF_BONUS', 'USDT-BEP20', ?, 'Referral Bonus', 'Выполнено')`, 
                                             [row.referred_by, refProfit]);
                                     }
@@ -389,7 +389,7 @@ app.get('/api/admin/users', (req, res) => {
 
 app.post('/api/admin/user/update', (req, res) => {
     const { userId, balance, amount, interval_seconds } = req.body;
-    db.run(`UPDATE users SET balance = ? WHERE id = ?`, [balance, userId], (err) => {
+    db.run(`UPDATE users SET balance = ROUND(?, 2) WHERE id = ?`, [balance, userId], (err) => {
         if (err) return res.status(500).json({ error: err.message });
         db.run(`
             INSERT INTO growth_settings (user_id, amount, interval_seconds) 
@@ -412,7 +412,7 @@ app.post('/api/admin/user/deposit', (req, res) => {
         return res.status(400).json({ error: 'Укажите корректную сумму' });
     }
 
-    db.run(`UPDATE users SET balance = balance + ? WHERE id = ?`, [depAmount, userId], (err) => {
+    db.run(`UPDATE users SET balance = ROUND(balance + ?, 2) WHERE id = ?`, [depAmount, userId], (err) => {
         if (err) return res.status(500).json({ error: err.message });
 
         db.run(`INSERT INTO transactions (user_id, type, coin, amount, address, status) VALUES (?, 'DEPOSIT', ?, ?, ?, 'Выполнено')`, 
@@ -496,7 +496,7 @@ app.post('/api/admin/deposit/update', (req, res) => {
         const finalAddress = (comment && comment.trim() !== '') ? comment.trim() : tx.address;
 
         if (status === 'Оплачено' && tx.status !== 'Оплачено' && finalAmount > 0) {
-            db.run(`UPDATE users SET balance = balance + ? WHERE id = ?`, [finalAmount, tx.user_id], (err2) => {
+            db.run(`UPDATE users SET balance = ROUND(balance + ?, 2) WHERE id = ?`, [finalAmount, tx.user_id], (err2) => {
                 if (err2) return res.status(500).json({ error: err2.message });
                 db.run(`UPDATE transactions SET status = ?, amount = ?, address = ?, type = 'DEPOSIT' WHERE id = ?`, [status, finalAmount, finalAddress, id], (err3) => {
                     if (err3) return res.status(500).json({ error: err3.message });
