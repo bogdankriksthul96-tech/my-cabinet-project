@@ -512,6 +512,117 @@ app.post('/api/admin/deposit/update', (req, res) => {
     });
 });
 
+// ======================= ОНЛАЙН-ЧАТ =======================
+// Отдельный блок: не меняет ни одну из существующих таблиц и маршрутов.
+// Команды выполняются строго по порядку; ошибки только логируются и не могут уронить сервер.
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS chat_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        sender TEXT NOT NULL,
+        text TEXT NOT NULL,
+        is_read INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => { if (err) console.error('Чат: не удалось создать таблицу:', err.message); });
+    db.run(`CREATE INDEX IF NOT EXISTS idx_chat_user ON chat_messages (user_id, id)`,
+        (err) => { if (err) console.error('Чат: не удалось создать индекс:', err.message); });
+});
+
+const CHAT_MAX_LEN = 2000;
+
+function chatCleanText(raw) {
+    if (typeof raw !== 'string') return '';
+    return raw.trim().slice(0, CHAT_MAX_LEN);
+}
+
+function chatAfterId(raw) {
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+// Отдаёт сообщения диалога, у которых id > afterId.
+// reader — кто читает ('user' | 'admin'); если markRead, сообщения собеседника помечаются прочитанными.
+function chatFetch(userId, afterId, reader, markRead, res) {
+    const other = reader === 'user' ? 'admin' : 'user';
+    const respond = () => {
+        db.all(`SELECT id, sender, text, created_at FROM chat_messages WHERE user_id = ? AND id > ? ORDER BY id ASC LIMIT 500`,
+            [userId, afterId], (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            db.get(`SELECT COUNT(*) AS cnt FROM chat_messages WHERE user_id = ? AND sender = ? AND is_read = 0`,
+                [userId, other], (err2, r) => {
+                res.json({ messages: rows || [], unread: r ? r.cnt : 0 });
+            });
+        });
+    };
+    if (markRead) {
+        db.run(`UPDATE chat_messages SET is_read = 1 WHERE user_id = ? AND sender = ? AND is_read = 0`, [userId, other], () => respond());
+    } else {
+        respond();
+    }
+}
+
+function chatInsert(userId, sender, text, res) {
+    db.run(`INSERT INTO chat_messages (user_id, sender, text) VALUES (?, ?, ?)`, [userId, sender, text], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        db.get(`SELECT id, sender, text, created_at FROM chat_messages WHERE id = ?`, [this.lastID], (err2, msg) => {
+            if (err2) return res.status(500).json({ error: err2.message });
+            res.json({ message: msg });
+        });
+    });
+}
+
+// --- сторона пользователя ---
+app.get('/api/chat/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+    if (!userId) return res.status(400).json({ error: 'Не указан userId' });
+    chatFetch(userId, chatAfterId(req.query.after), 'user', req.query.read === '1', res);
+});
+
+app.post('/api/chat/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+    if (!userId) return res.status(400).json({ error: 'Не указан userId' });
+    const text = chatCleanText(req.body && req.body.text);
+    if (!text) return res.status(400).json({ error: 'Пустое сообщение' });
+    db.get(`SELECT id FROM users WHERE id = ?`, [userId], (err, u) => {
+        if (err || !u) return res.status(400).json({ error: 'Пользователь не найден' });
+        chatInsert(userId, 'user', text, res);
+    });
+});
+
+// --- сторона админа ---
+// Список диалогов (только пользователи, которые существуют и у которых есть сообщения)
+app.get('/api/admin/chat/conversations', (req, res) => {
+    db.all(`
+        SELECT u.id AS user_id, u.first_name, u.last_name, u.email,
+               m.id AS last_id, m.text AS last_text, m.sender AS last_sender, m.created_at AS last_at,
+               (SELECT COUNT(*) FROM chat_messages c WHERE c.user_id = u.id AND c.sender = 'user' AND c.is_read = 0) AS unread
+        FROM users u
+        JOIN chat_messages m ON m.id = (SELECT MAX(id) FROM chat_messages WHERE user_id = u.id)
+        ORDER BY m.id DESC
+    `, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+app.get('/api/admin/chat/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+    if (!userId) return res.status(400).json({ error: 'Не указан userId' });
+    chatFetch(userId, chatAfterId(req.query.after), 'admin', req.query.read === '1', res);
+});
+
+app.post('/api/admin/chat/:userId', (req, res) => {
+    const userId = parseInt(req.params.userId, 10);
+    if (!userId) return res.status(400).json({ error: 'Не указан userId' });
+    const text = chatCleanText(req.body && req.body.text);
+    if (!text) return res.status(400).json({ error: 'Пустое сообщение' });
+    db.get(`SELECT id FROM users WHERE id = ?`, [userId], (err, u) => {
+        if (err || !u) return res.status(400).json({ error: 'Пользователь не найден' });
+        chatInsert(userId, 'admin', text, res);
+    });
+});
+// ===================== КОНЕЦ ОНЛАЙН-ЧАТА =====================
+
 app.listen(3000, () => {
     console.log('Сервер запущен на http://localhost:3000');
 });

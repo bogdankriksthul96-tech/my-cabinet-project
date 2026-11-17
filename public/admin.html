@@ -155,6 +155,43 @@
             gap: 8px;
             align-items: center;
         }
+
+        /* ===== Онлайн-чат ===== */
+        .btn-chat { background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); }
+        .chat-total { display: inline-block; min-width: 22px; height: 22px; padding: 0 7px; box-sizing: border-box; border-radius: 11px; background: var(--danger); color: #fff; font-size: 12px; font-weight: 700; line-height: 22px; text-align: center; vertical-align: middle; margin-left: 8px; }
+        .chat-admin { display: flex; height: 520px; border: 1px solid var(--card-border); border-radius: 14px; overflow: hidden; background: #0b111d; }
+        .chat-side { width: 320px; flex-shrink: 0; display: flex; flex-direction: column; border-right: 1px solid var(--card-border); }
+        .chat-side input { border: none; border-bottom: 1px solid var(--card-border); border-radius: 0; padding: 12px 14px; }
+        .chat-conv-list { flex: 1; overflow-y: auto; }
+        .chat-conv { padding: 12px 14px; border-bottom: 1px solid var(--card-border); cursor: pointer; }
+        .chat-conv:hover { background: #111a2d; }
+        .chat-conv.active { background: #16213a; box-shadow: inset 3px 0 0 var(--accent-blue); }
+        .chat-conv-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .chat-conv-name { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chat-conv-time { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+        .chat-conv-mail { font-size: 12px; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chat-conv-bottom { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px; }
+        .chat-conv-last { font-size: 13px; color: #cbd5e1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chat-unread { min-width: 20px; height: 20px; padding: 0 6px; box-sizing: border-box; border-radius: 10px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 700; line-height: 20px; text-align: center; flex-shrink: 0; }
+        .chat-none { padding: 24px 14px; text-align: center; color: var(--text-muted); font-size: 13px; }
+        .chat-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+        .chat-main-head { padding: 12px 16px; border-bottom: 1px solid var(--card-border); font-size: 14px; color: var(--text-muted); flex-shrink: 0; min-height: 20px; }
+        .chat-main-head b { color: var(--text-main); font-size: 15px; }
+        .chat-messages { flex: 1; min-height: 0; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .chat-msg { display: flex; }
+        .chat-msg.mine { justify-content: flex-end; }
+        .chat-msg.theirs { justify-content: flex-start; }
+        .chat-bubble { max-width: 70%; padding: 9px 12px; border-radius: 16px; font-size: 14px; line-height: 1.4; }
+        .chat-msg.mine .chat-bubble { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #fff; border-bottom-right-radius: 5px; }
+        .chat-msg.theirs .chat-bubble { background: #1e293b; color: var(--text-main); border-bottom-left-radius: 5px; }
+        .chat-text { white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+        .chat-time { font-size: 10px; opacity: 0.65; margin-top: 3px; text-align: right; }
+        .chat-hint { margin: auto; text-align: center; color: var(--text-muted); font-size: 13px; }
+        .chat-admin-input { display: flex; gap: 10px; align-items: flex-end; padding: 12px; border-top: 1px solid var(--card-border); flex-shrink: 0; }
+        .chat-admin-input textarea { flex: 1; resize: none; min-height: 44px; max-height: 120px; padding: 10px 12px; font-family: inherit; font-size: 14px; background: #0b111d; border: 1px solid var(--card-border); color: #fff; border-radius: 8px; box-sizing: border-box; outline: none; }
+        .chat-admin-input textarea:focus { border-color: var(--accent-blue); }
+        .chat-admin-input button { height: 44px; padding: 0 20px; }
+        .chat-admin-input button:disabled, .chat-admin-input textarea:disabled { opacity: 0.5; cursor: default; }
     </style>
 </head>
 <body>
@@ -172,6 +209,24 @@
     <!-- Основной контент админки -->
     <div class="container" id="adminContent">
         <h1>CRM / Панель администратора</h1>
+
+        <div class="card" id="chatCard">
+            <h2 style="margin-top: 0;">Онлайн-чат с пользователями <span id="chatTotalBadge" class="chat-total" style="display: none;"></span></h2>
+            <div class="chat-admin">
+                <div class="chat-side">
+                    <input type="text" id="chatSearch" placeholder="Поиск по имени или email" oninput="adminChatRenderConvs()">
+                    <div class="chat-conv-list" id="chatConvList"></div>
+                </div>
+                <div class="chat-main">
+                    <div class="chat-main-head" id="chatHead">Выберите диалог слева или нажмите «Чат» в строке пользователя ниже</div>
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chat-admin-input">
+                        <textarea id="chatAdminInput" rows="2" placeholder="Ответ пользователю... (Enter — отправить, Shift+Enter — новая строка)" disabled></textarea>
+                        <button id="chatAdminSend" onclick="adminChatSend()" disabled>Отправить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="card">
             <h2>Запросы на пополнение депозита</h2>
@@ -259,6 +314,7 @@
         loadDeposits();
         loadWithdrawals();
         loadUsers();
+        adminChatInit();
     }
 
     async function loadDeposits() {
@@ -385,6 +441,7 @@
                     </div>
                 </td>
                 <td class="flex-row">
+                    <button class="btn-chat" onclick="adminChatOpen(${u.id}, true)">Чат</button>
                     <button onclick="updateUser(${u.id})">Сохранить</button>
                     <button class="btn-danger" onclick="deleteUser(${u.id})">Удалить</button>
                 </td>
@@ -451,6 +508,246 @@
             loadDeposits();
             loadWithdrawals();
         }
+    }
+    // ===================== ОНЛАЙН-ЧАТ (админка) =====================
+    const CHAT_BASE_TITLE = document.title;
+    let chatSelected = null;
+    let chatLastId = 0;
+    let chatUsers = {};
+    let chatConvs = [];
+    let chatStarted = false;
+    let chatBusyConv = false;
+    let chatBusyThread = false;
+
+    function chatEl(id) { return document.getElementById(id); }
+
+    function chatUserName(u) {
+        if (!u) return '';
+        return ((u.first_name || '') + ' ' + (u.last_name || '')).trim() || u.email || ('ID ' + (u.id || u.user_id));
+    }
+
+    function chatTime(createdAt) {
+        const dt = new Date(String(createdAt).replace(' ', 'T') + 'Z');
+        if (isNaN(dt.getTime())) return '';
+        const t = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (dt.toDateString() === new Date().toDateString()) return t;
+        return dt.toLocaleDateString([], { day: '2-digit', month: '2-digit' }) + ' ' + t;
+    }
+
+    function adminChatInit() {
+        if (chatStarted) return;
+        chatStarted = true;
+        chatLoadUsers();
+        chatLoadConvs();
+        setInterval(() => { if (!document.hidden) chatLoadConvs(); }, 5000);
+        setInterval(() => { if (!document.hidden) adminChatPollThread(); }, 2500);
+        setInterval(() => { if (!document.hidden) chatLoadUsers(); }, 60000);
+        chatEl('chatAdminInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+                e.preventDefault();
+                adminChatSend();
+            }
+        });
+    }
+
+    async function chatLoadUsers() {
+        try {
+            const res = await fetch('/api/admin/users');
+            if (!res.ok) return;
+            const rows = await res.json();
+            const map = {};
+            rows.forEach(u => { map[u.id] = u; });
+            chatUsers = map;
+            adminChatRenderHead();
+        } catch (e) {}
+    }
+
+    async function chatLoadConvs() {
+        if (chatBusyConv) return;
+        chatBusyConv = true;
+        try {
+            const res = await fetch('/api/admin/chat/conversations');
+            if (res.ok) {
+                chatConvs = await res.json();
+                adminChatRenderConvs();
+                const total = chatConvs.reduce((s, c) => s + (c.unread || 0), 0);
+                const badge = chatEl('chatTotalBadge');
+                badge.textContent = total;
+                badge.style.display = total > 0 ? 'inline-block' : 'none';
+                document.title = total > 0 ? '(' + total + ') ' + CHAT_BASE_TITLE : CHAT_BASE_TITLE;
+            }
+        } catch (e) {}
+        chatBusyConv = false;
+    }
+
+    function adminChatRenderConvs() {
+        const box = chatEl('chatConvList');
+        const q = (chatEl('chatSearch').value || '').trim().toLowerCase();
+        const list = chatConvs.filter(c => !q || (chatUserName(c) + ' ' + (c.email || '')).toLowerCase().includes(q));
+        box.innerHTML = '';
+        if (!list.length) {
+            const n = document.createElement('div');
+            n.className = 'chat-none';
+            n.textContent = chatConvs.length ? 'Ничего не найдено' : 'Диалогов пока нет';
+            box.appendChild(n);
+            return;
+        }
+        list.forEach(c => {
+            const item = document.createElement('div');
+            item.className = 'chat-conv' + (c.user_id === chatSelected ? ' active' : '');
+            item.onclick = () => adminChatOpen(c.user_id);
+
+            const top = document.createElement('div');
+            top.className = 'chat-conv-top';
+            const name = document.createElement('div');
+            name.className = 'chat-conv-name';
+            name.textContent = chatUserName(c);
+            const time = document.createElement('div');
+            time.className = 'chat-conv-time';
+            time.textContent = chatTime(c.last_at);
+            top.appendChild(name);
+            top.appendChild(time);
+
+            const mail = document.createElement('div');
+            mail.className = 'chat-conv-mail';
+            mail.textContent = c.email || '';
+
+            const bottom = document.createElement('div');
+            bottom.className = 'chat-conv-bottom';
+            const last = document.createElement('div');
+            last.className = 'chat-conv-last';
+            last.textContent = (c.last_sender === 'admin' ? 'Вы: ' : '') + (c.last_text || '');
+            bottom.appendChild(last);
+            if (c.unread > 0 && c.user_id !== chatSelected) {
+                const b = document.createElement('div');
+                b.className = 'chat-unread';
+                b.textContent = c.unread;
+                bottom.appendChild(b);
+            }
+
+            item.appendChild(top);
+            item.appendChild(mail);
+            item.appendChild(bottom);
+            box.appendChild(item);
+        });
+    }
+
+    function adminChatRenderHead() {
+        const head = chatEl('chatHead');
+        if (!chatSelected) return;
+        const u = chatUsers[chatSelected] || chatConvs.find(c => c.user_id === chatSelected);
+        head.innerHTML = '';
+        const b = document.createElement('b');
+        b.textContent = chatUserName(u) || ('ID ' + chatSelected);
+        head.appendChild(b);
+        const meta = document.createElement('span');
+        let info = '  ·  ID ' + chatSelected;
+        if (u && u.email) info += '  ·  ' + u.email;
+        if (u && u.phone) info += '  ·  ' + u.phone;
+        if (u && u.balance !== undefined) info += '  ·  Баланс: $' + Number(u.balance).toFixed(2);
+        meta.textContent = info;
+        head.appendChild(meta);
+    }
+
+    function adminChatShowHint(text) {
+        const box = chatEl('chatMessages');
+        box.innerHTML = '';
+        const h = document.createElement('div');
+        h.id = 'chatHint';
+        h.className = 'chat-hint';
+        h.textContent = text;
+        box.appendChild(h);
+    }
+
+    function adminChatOpen(userId, scrollToCard) {
+        chatSelected = Number(userId);
+        chatLastId = 0;
+        chatBusyThread = false;
+        chatEl('chatAdminInput').disabled = false;
+        chatEl('chatAdminSend').disabled = false;
+        adminChatShowHint('Загрузка...');
+        adminChatRenderHead();
+        adminChatRenderConvs();
+        if (scrollToCard) chatEl('chatCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        adminChatPollThread(true);
+        chatEl('chatAdminInput').focus();
+    }
+
+    function adminChatAppend(msgs, firstLoad) {
+        const box = chatEl('chatMessages');
+        if (firstLoad && !msgs.length) {
+            adminChatShowHint('Сообщений пока нет. Напишите первым.');
+            return;
+        }
+        if (!msgs.length) return;
+        const nearBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+        const hint = chatEl('chatHint');
+        if (hint) hint.remove();
+        let ownAdded = false;
+        for (const m of msgs) {
+            if (box.querySelector('[data-id="' + m.id + '"]')) continue;
+            const mine = m.sender === 'admin';
+            const row = document.createElement('div');
+            row.className = 'chat-msg ' + (mine ? 'mine' : 'theirs');
+            row.dataset.id = m.id;
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            const tx = document.createElement('div');
+            tx.className = 'chat-text';
+            tx.textContent = m.text;
+            const tm = document.createElement('div');
+            tm.className = 'chat-time';
+            tm.textContent = chatTime(m.created_at);
+            bubble.appendChild(tx);
+            bubble.appendChild(tm);
+            row.appendChild(bubble);
+            box.appendChild(row);
+            if (m.id > chatLastId) chatLastId = m.id;
+            if (mine) ownAdded = true;
+        }
+        if (nearBottom || ownAdded || firstLoad) box.scrollTop = box.scrollHeight;
+    }
+
+    async function adminChatPollThread(firstLoad) {
+        const uid = chatSelected;
+        if (!uid || chatBusyThread) return;
+        chatBusyThread = true;
+        try {
+            const res = await fetch('/api/admin/chat/' + uid + '?after=' + chatLastId + '&read=1');
+            if (res.ok && uid === chatSelected) {
+                const data = await res.json();
+                const msgs = data.messages || [];
+                adminChatAppend(msgs, !!firstLoad);
+                if (msgs.some(m => m.sender === 'user')) chatLoadConvs();
+            }
+        } catch (e) {}
+        chatBusyThread = false;
+    }
+
+    async function adminChatSend() {
+        const uid = chatSelected;
+        const input = chatEl('chatAdminInput');
+        const btn = chatEl('chatAdminSend');
+        const text = input.value.trim();
+        if (!uid || !text) return;
+        btn.disabled = true;
+        input.value = '';
+        try {
+            const res = await fetch('/api/admin/chat/' + uid, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Ошибка отправки');
+            if (uid === chatSelected && data.message) adminChatAppend([data.message], false);
+            chatLoadConvs();
+        } catch (e) {
+            if (!input.value) input.value = text;
+            alert(e.message || 'Ошибка отправки сообщения');
+        }
+        btn.disabled = false;
+        input.focus();
     }
 </script>
 </body>

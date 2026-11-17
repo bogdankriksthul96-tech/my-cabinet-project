@@ -281,6 +281,45 @@
             justify-content: space-between;
             align-items: center;
         }
+
+        /* ===== Онлайн-чат ===== */
+        body.chat-lock { overflow: hidden; }
+        #chatFab, #chatSend, #chatClose { -webkit-tap-highlight-color: transparent; }
+        #chatFab { position: fixed; right: 20px; bottom: 20px; width: 56px; height: 56px; margin: 0; padding: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 1000; box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.6); }
+        #chatFab:hover { transform: scale(1.06); }
+        #chatFab svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        #chatBadge { position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 5px; box-sizing: border-box; border-radius: 11px; background: var(--danger); color: #fff; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; border: 2px solid var(--bg-color); }
+        #chatPanel { position: fixed; right: 20px; bottom: 92px; width: 380px; height: min(560px, calc(100vh - 120px)); display: none; flex-direction: column; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 20px; box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6); overflow: hidden; z-index: 1001; }
+        #chatPanel.open { display: flex; }
+        .chat-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px 12px 16px; border-bottom: 1px solid var(--card-border); background: #0f1626; flex-shrink: 0; }
+        .chat-head-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; }
+        .chat-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+        #chatClose { width: 34px; height: 34px; margin: 0; padding: 0; background: transparent; box-shadow: none; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); }
+        #chatClose:hover { transform: none; background: #1e293b; }
+        #chatClose svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+        #chatList { flex: 1; min-height: 0; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 8px; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+        .chat-empty { margin: auto; text-align: center; color: var(--text-muted); font-size: 13px; padding: 0 24px; line-height: 1.5; }
+        .chat-row { display: flex; }
+        .chat-row.mine { justify-content: flex-end; }
+        .chat-row.theirs { justify-content: flex-start; }
+        .chat-bubble { max-width: 82%; padding: 9px 12px; border-radius: 16px; font-size: 14px; line-height: 1.4; }
+        .chat-row.mine .chat-bubble { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: #fff; border-bottom-right-radius: 5px; }
+        .chat-row.theirs .chat-bubble { background: #1e293b; color: var(--text-main); border-bottom-left-radius: 5px; }
+        .chat-who { font-size: 11px; font-weight: 700; color: #60a5fa; margin-bottom: 2px; }
+        .chat-text { white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere; }
+        .chat-time { font-size: 10px; opacity: 0.65; margin-top: 3px; text-align: right; }
+        #chatError { display: none; color: var(--danger); font-size: 12px; padding: 0 14px 6px; flex-shrink: 0; }
+        .chat-input-row { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--card-border); background: #0f1626; flex-shrink: 0; }
+        #chatInput { flex: 1; min-width: 0; margin: 0; resize: none; min-height: 42px; max-height: 120px; padding: 10px 14px; font-family: inherit; font-size: 16px; line-height: 1.35; background: #0b111d; border: 1px solid var(--card-border); color: #fff; border-radius: 14px; box-sizing: border-box; outline: none; }
+        #chatInput:focus { border-color: var(--accent-blue); }
+        #chatSend { width: 42px; height: 42px; margin: 0; padding: 0; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        #chatSend:disabled { opacity: 0.5; cursor: default; transform: none; }
+        #chatSend svg { width: 20px; height: 20px; fill: #fff; }
+        @media (max-width: 520px) {
+            #chatFab { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); }
+            #chatPanel { top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; height: 100dvh; border-radius: 0; border: none; }
+            #chatWidget.open #chatFab { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -426,6 +465,26 @@
     </div>
 </div>
 
+<!-- Онлайн-чат -->
+<div id="chatWidget" class="hidden">
+    <button id="chatFab" type="button" onclick="chatToggle()" aria-label="Chat">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.6-.8L3 21l1.9-5.1A8.4 8.4 0 0 1 3 11.5 8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5z"/></svg>
+        <span id="chatBadge" class="hidden">0</span>
+    </button>
+    <div id="chatPanel" role="dialog" aria-label="Chat">
+        <div class="chat-head">
+            <div class="chat-head-title"><span class="chat-dot"></span><span data-i18n="chat_title">Онлайн-чат</span></div>
+            <button id="chatClose" type="button" onclick="chatToggle(false)" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+        <div id="chatList"></div>
+        <div id="chatError"></div>
+        <div class="chat-input-row">
+            <textarea id="chatInput" rows="1" maxlength="2000" placeholder=""></textarea>
+            <button id="chatSend" type="button" onclick="chatSendMsg()" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M3.4 20.4 21 12 3.4 3.6 3 10l12 2-12 2z"/></svg></button>
+        </div>
+    </div>
+</div>
+
 <script>
     let currentUser = null;
     let isRegisterMode = false;
@@ -456,6 +515,14 @@
             deposit_btn: "Депозит (Пополнить)",
             select_network: "Выберите сеть пополнения:",
             copy: "Копировать",
+            chat_title: "Онлайн-чат",
+            chat_placeholder: "Введите сообщение...",
+            chat_send: "Отправить",
+            chat_empty: "Напишите нам — мы ответим как можно скорее.",
+            chat_support: "Поддержка",
+            chat_error: "Не удалось отправить сообщение. Попробуйте ещё раз.",
+            chat_open: "Открыть чат",
+            chat_close: "Закрыть чат",
             ph_first_name: "Имя",
             ph_last_name: "Фамилия",
             ph_phone: "Телефон",
@@ -561,6 +628,14 @@
             deposit_btn: "Deposit",
             select_network: "Select deposit network:",
             copy: "Copy",
+            chat_title: "Online chat",
+            chat_placeholder: "Type a message...",
+            chat_send: "Send",
+            chat_empty: "Write to us — we will reply as soon as possible.",
+            chat_support: "Support",
+            chat_error: "Could not send the message. Please try again.",
+            chat_open: "Open chat",
+            chat_close: "Close chat",
             ph_first_name: "First name",
             ph_last_name: "Last name",
             ph_phone: "Phone",
@@ -666,6 +741,14 @@
             deposit_btn: "Depósito",
             select_network: "Seleccione la red de depósito:",
             copy: "Copiar",
+            chat_title: "Chat en línea",
+            chat_placeholder: "Escribe un mensaje...",
+            chat_send: "Enviar",
+            chat_empty: "Escríbenos: responderemos lo antes posible.",
+            chat_support: "Soporte",
+            chat_error: "No se pudo enviar el mensaje. Inténtalo de nuevo.",
+            chat_open: "Abrir chat",
+            chat_close: "Cerrar chat",
             ph_first_name: "Nombre",
             ph_last_name: "Apellido",
             ph_phone: "Teléfono",
@@ -771,6 +854,14 @@
             deposit_btn: "Einzahlen",
             select_network: "Einzahlungsnetzwerk auswählen:",
             copy: "Kopieren",
+            chat_title: "Online-Chat",
+            chat_placeholder: "Nachricht eingeben...",
+            chat_send: "Senden",
+            chat_empty: "Schreiben Sie uns – wir antworten so schnell wie möglich.",
+            chat_support: "Support",
+            chat_error: "Die Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+            chat_open: "Chat öffnen",
+            chat_close: "Chat schließen",
             ph_first_name: "Vorname",
             ph_last_name: "Nachname",
             ph_phone: "Telefon",
@@ -876,6 +967,14 @@
             deposit_btn: "Wpłata",
             select_network: "Wybierz sieć wpłaty:",
             copy: "Kopiuj",
+            chat_title: "Czat online",
+            chat_placeholder: "Wpisz wiadomość...",
+            chat_send: "Wyślij",
+            chat_empty: "Napisz do nas — odpowiemy tak szybko, jak to możliwe.",
+            chat_support: "Wsparcie",
+            chat_error: "Nie udało się wysłać wiadomości. Spróbuj ponownie.",
+            chat_open: "Otwórz czat",
+            chat_close: "Zamknij czat",
             ph_first_name: "Imię",
             ph_last_name: "Nazwisko",
             ph_phone: "Telefon",
@@ -981,6 +1080,14 @@
             deposit_btn: "Vklad",
             select_network: "Vyberte síť pro vklad:",
             copy: "Kopírovat",
+            chat_title: "Online chat",
+            chat_placeholder: "Napište zprávu...",
+            chat_send: "Odeslat",
+            chat_empty: "Napište nám — odpovíme co nejdříve.",
+            chat_support: "Podpora",
+            chat_error: "Zprávu se nepodařilo odeslat. Zkuste to znovu.",
+            chat_open: "Otevřít chat",
+            chat_close: "Zavřít chat",
             ph_first_name: "Jméno",
             ph_last_name: "Příjmení",
             ph_phone: "Telefon",
@@ -1086,6 +1193,14 @@
             deposit_btn: "Dépôt",
             select_network: "Sélectionnez le réseau de dépôt :",
             copy: "Copier",
+            chat_title: "Chat en ligne",
+            chat_placeholder: "Saisissez un message...",
+            chat_send: "Envoyer",
+            chat_empty: "Écrivez-nous — nous répondrons dès que possible.",
+            chat_support: "Support",
+            chat_error: "Impossible d'envoyer le message. Veuillez réessayer.",
+            chat_open: "Ouvrir le chat",
+            chat_close: "Fermer le chat",
             ph_first_name: "Prénom",
             ph_last_name: "Nom",
             ph_phone: "Téléphone",
@@ -1271,6 +1386,7 @@
         refreshSelectedCoinTitle();
         applyAuthTexts();
         document.documentElement.lang = lang;
+        chatApplyTexts();
         if (!currentCoin) document.getElementById("selectedCoinTitle").innerText = dict.deposit_address + ":";
         if (!currentUser) {
             document.getElementById("userNameDisplay").innerText = dict.user_default;
@@ -1471,9 +1587,11 @@
         loadWallets();
         loadHistory();
         loadReferrals();
+        chatStart();
     }
 
     function logout() {
+        chatStop();
         localStorage.removeItem('currentUser');
         currentUser = null;
         document.getElementById("cabinetScreen").classList.add("hidden");
@@ -1855,6 +1973,242 @@
             alert(i18n().bot_network_error);
         }
     }
+    // ===================== ОНЛАЙН-ЧАТ =====================
+    const CHAT_POLL_OPEN_MS = 3000;
+    const CHAT_POLL_CLOSED_MS = 10000;
+    const CHAT_POLL_HIDDEN_MS = 30000;
+    let chatOpen = false;
+    let chatTimer = null;
+    let chatBusy = false;
+    let chatLastId = 0;
+    let chatUserId = null;
+    let chatErrTimer = null;
+
+    function chatEl(id) { return document.getElementById(id); }
+    function chatIsMobile() { return window.matchMedia('(max-width: 520px)').matches; }
+
+    function chatApplyTexts() {
+        const d = translations[currentLang] || translations.ru;
+        chatEl('chatInput').placeholder = d.chat_placeholder;
+        chatEl('chatSend').setAttribute('aria-label', d.chat_send);
+        chatEl('chatSend').title = d.chat_send;
+        chatEl('chatFab').setAttribute('aria-label', d.chat_open);
+        chatEl('chatClose').setAttribute('aria-label', d.chat_close);
+        chatEl('chatPanel').setAttribute('aria-label', d.chat_title);
+        document.querySelectorAll('#chatList .chat-who').forEach(e => { e.textContent = d.chat_support; });
+        const empty = chatEl('chatEmpty');
+        if (empty) empty.textContent = d.chat_empty;
+    }
+
+    function chatTime(createdAt) {
+        const dt = new Date(String(createdAt).replace(' ', 'T') + 'Z');
+        if (isNaN(dt.getTime())) return '';
+        const t = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        if (dt.toDateString() === new Date().toDateString()) return t;
+        return dt.toLocaleDateString([], { day: '2-digit', month: '2-digit' }) + ' ' + t;
+    }
+
+    function chatShowEmpty() {
+        const list = chatEl('chatList');
+        list.innerHTML = '';
+        const e = document.createElement('div');
+        e.id = 'chatEmpty';
+        e.className = 'chat-empty';
+        e.textContent = (translations[currentLang] || translations.ru).chat_empty;
+        list.appendChild(e);
+    }
+
+    function chatAppend(msgs) {
+        if (!msgs || !msgs.length) return;
+        const d = translations[currentLang] || translations.ru;
+        const list = chatEl('chatList');
+        const nearBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 80;
+        const empty = chatEl('chatEmpty');
+        if (empty) empty.remove();
+        let ownAdded = false;
+        for (const m of msgs) {
+            if (list.querySelector('[data-id="' + m.id + '"]')) continue;
+            const mine = m.sender === 'user';
+            const row = document.createElement('div');
+            row.className = 'chat-row ' + (mine ? 'mine' : 'theirs');
+            row.dataset.id = m.id;
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble';
+            if (!mine) {
+                const who = document.createElement('div');
+                who.className = 'chat-who';
+                who.textContent = d.chat_support;
+                bubble.appendChild(who);
+            }
+            const tx = document.createElement('div');
+            tx.className = 'chat-text';
+            tx.textContent = m.text;
+            bubble.appendChild(tx);
+            const tm = document.createElement('div');
+            tm.className = 'chat-time';
+            tm.textContent = chatTime(m.created_at);
+            bubble.appendChild(tm);
+            row.appendChild(bubble);
+            list.appendChild(row);
+            if (m.id > chatLastId) chatLastId = m.id;
+            if (mine) ownAdded = true;
+        }
+        if (nearBottom || ownAdded) list.scrollTop = list.scrollHeight;
+    }
+
+    function chatSetUnread(n) {
+        const b = chatEl('chatBadge');
+        if (n > 0) {
+            b.textContent = n > 99 ? '99+' : String(n);
+            b.classList.remove('hidden');
+        } else {
+            b.classList.add('hidden');
+        }
+    }
+
+    function chatShowError() {
+        const e = chatEl('chatError');
+        e.textContent = (translations[currentLang] || translations.ru).chat_error;
+        e.style.display = 'block';
+        clearTimeout(chatErrTimer);
+        chatErrTimer = setTimeout(() => { e.style.display = 'none'; }, 4000);
+    }
+
+    function chatSchedule() {
+        clearTimeout(chatTimer);
+        if (!chatUserId) return;
+        const ms = document.hidden ? CHAT_POLL_HIDDEN_MS : (chatOpen ? CHAT_POLL_OPEN_MS : CHAT_POLL_CLOSED_MS);
+        chatTimer = setTimeout(chatTick, ms);
+    }
+
+    async function chatTick() {
+        const uid = chatUserId;
+        if (!uid) return;
+        if (!chatBusy) {
+            chatBusy = true;
+            try {
+                const res = await fetch('/api/chat/' + uid + '?after=' + chatLastId + (chatOpen ? '&read=1' : ''));
+                if (res.ok && uid === chatUserId) {
+                    const data = await res.json();
+                    chatAppend(data.messages || []);
+                    chatSetUnread(chatOpen ? 0 : (data.unread || 0));
+                }
+            } catch (e) {}
+            chatBusy = false;
+        }
+        chatSchedule();
+    }
+
+    async function chatSendMsg() {
+        const input = chatEl('chatInput');
+        const btn = chatEl('chatSend');
+        const text = input.value.trim();
+        const uid = chatUserId;
+        if (!text || !uid) return;
+        btn.disabled = true;
+        input.value = '';
+        chatAutoGrow();
+        try {
+            const res = await fetch('/api/chat/' + uid, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            });
+            if (!res.ok) throw new Error('send failed');
+            const data = await res.json();
+            if (uid === chatUserId && data.message) chatAppend([data.message]);
+        } catch (e) {
+            if (!input.value) { input.value = text; chatAutoGrow(); }
+            chatShowError();
+        }
+        btn.disabled = false;
+        if (!chatIsMobile()) input.focus();
+    }
+
+    function chatAutoGrow() {
+        const input = chatEl('chatInput');
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    }
+
+    // На телефоне панель занимает весь экран и подстраивается под экранную клавиатуру
+    function chatFitViewport() {
+        const p = chatEl('chatPanel');
+        if (chatOpen && chatIsMobile() && window.visualViewport) {
+            p.style.top = window.visualViewport.offsetTop + 'px';
+            p.style.height = window.visualViewport.height + 'px';
+            p.style.bottom = 'auto';
+        } else {
+            p.style.top = '';
+            p.style.height = '';
+            p.style.bottom = '';
+        }
+    }
+
+    function chatToggle(force) {
+        chatOpen = (typeof force === 'boolean') ? force : !chatOpen;
+        chatEl('chatPanel').classList.toggle('open', chatOpen);
+        chatEl('chatWidget').classList.toggle('open', chatOpen);
+        document.body.classList.toggle('chat-lock', chatOpen && chatIsMobile());
+        chatFitViewport();
+        if (chatOpen) {
+            chatSetUnread(0);
+            const list = chatEl('chatList');
+            list.scrollTop = list.scrollHeight;
+            clearTimeout(chatTimer);
+            chatTick();
+            if (!chatIsMobile()) chatEl('chatInput').focus();
+        } else {
+            chatSchedule();
+        }
+    }
+
+    function chatStart() {
+        if (!currentUser || !currentUser.id) return;
+        if (chatUserId === currentUser.id) {
+            chatEl('chatWidget').classList.remove('hidden');
+            return;
+        }
+        chatStop();
+        chatUserId = currentUser.id;
+        chatLastId = 0;
+        chatShowEmpty();
+        chatApplyTexts();
+        chatEl('chatWidget').classList.remove('hidden');
+        chatTick();
+    }
+
+    function chatStop() {
+        clearTimeout(chatTimer);
+        chatUserId = null;
+        chatBusy = false;
+        chatLastId = 0;
+        chatOpen = false;
+        chatEl('chatPanel').classList.remove('open');
+        chatEl('chatWidget').classList.remove('open');
+        document.body.classList.remove('chat-lock');
+        chatFitViewport();
+        chatSetUnread(0);
+        chatEl('chatWidget').classList.add('hidden');
+        chatShowEmpty();
+    }
+
+    chatEl('chatInput').addEventListener('input', chatAutoGrow);
+    chatEl('chatInput').addEventListener('keydown', (e) => {
+        // На компьютере Enter отправляет, Shift+Enter — новая строка. На телефоне Enter — новая строка.
+        if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !window.matchMedia('(pointer: coarse)').matches) {
+            e.preventDefault();
+            chatSendMsg();
+        }
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && chatOpen) chatToggle(false); });
+    document.addEventListener('visibilitychange', () => { if (chatUserId) { if (!document.hidden) { clearTimeout(chatTimer); chatTick(); } else chatSchedule(); } });
+    window.addEventListener('resize', chatFitViewport);
+    if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', chatFitViewport);
+        window.visualViewport.addEventListener('scroll', chatFitViewport);
+    }
+    chatShowEmpty();
 </script>
 </body>
 </html>
