@@ -320,6 +320,22 @@
             #chatPanel { top: 0; right: 0; bottom: 0; left: 0; width: 100%; height: 100%; height: 100dvh; border-radius: 0; border: none; }
             #chatWidget.open #chatFab { display: none; }
         }
+        /* ===== Карточка баланса и график (визуал) ===== */
+        .balance-card { position: relative; overflow: hidden; background: linear-gradient(150deg, #18253f 0%, #101a30 55%, #0d1426 100%); border: 1px solid rgba(148, 163, 184, 0.14); box-shadow: 0 18px 40px -12px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+        .balance-card::before { content: ""; position: absolute; top: -90px; right: -70px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(59, 130, 246, 0.30) 0%, rgba(59, 130, 246, 0) 70%); pointer-events: none; }
+        .balance-card::after { content: ""; position: absolute; bottom: -110px; left: -80px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(16, 185, 129, 0.16) 0%, rgba(16, 185, 129, 0) 70%); pointer-events: none; }
+        .balance-card > * { position: relative; z-index: 1; }
+        .balance-card .header-top { display: flex; align-items: center; justify-content: space-between; }
+        .live-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: 1px; color: #6ee7b7; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28); }
+        .live-pill i { width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); animation: livePulse 2s infinite; }
+        @keyframes livePulse { 0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); } 70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); } 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } }
+        .balance-card .balance-value { margin: 6px 0 4px; font-size: clamp(26px, 8.5vw, 44px); line-height: 1.1; letter-spacing: -1px; word-break: break-all; font-variant-numeric: tabular-nums; }
+        .bal-cur { font-size: 0.55em; font-weight: 600; color: #7dd3fc; vertical-align: 0.42em; margin-right: 3px; }
+        .bal-int { background: linear-gradient(180deg, #ffffff 0%, #cfe0ff 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent; }
+        .bal-dec { font-size: 0.55em; font-weight: 600; color: #7b8aa5; }
+        .balance-card .chart-title-row { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
+        .balance-card .chart-title-row::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(148, 163, 184, 0.25), rgba(148, 163, 184, 0)); }
+        .balance-card .chart-container { height: 170px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -368,12 +384,13 @@
             <button onclick="logout()" style="width: auto; margin-top:0; padding: 8px 14px; font-size: 12px; background: #1e293b;" data-i18n="logout">Выйти</button>
         </div>
 
-        <div class="card">
+        <div class="card balance-card">
             <div class="header-top">
                 <div class="balance-title" style="margin-bottom:0;" data-i18n="total_balance">Общий баланс аккаунта</div>
+                <span class="live-pill"><i></i>LIVE</span>
             </div>
-            <div class="balance-value" id="userBalance">$0.00</div>
-            <div class="balance-title" style="margin-top: 16px;" data-i18n="yield_dynamics">Динамика доходности</div>
+            <div class="balance-value" id="userBalance"><span class="bal-cur">$</span><span class="bal-int">0</span><span class="bal-dec">.00</span></div>
+            <div class="balance-title chart-title-row" data-i18n="yield_dynamics">Динамика доходности</div>
             <div class="chart-container">
                 <canvas id="yieldChart"></canvas>
             </div>
@@ -1576,8 +1593,16 @@
         return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }).format(Number(v) || 0);
     }
 
+    function renderBalance(v) {
+        var el = document.getElementById("userBalance");
+        if (!el) return;
+        var txt = new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true }).format(Number(v) || 0);
+        var i = txt.lastIndexOf('.');
+        el.innerHTML = '<span class="bal-cur">$</span><span class="bal-int">' + txt.slice(0, i) + '</span><span class="bal-dec">' + txt.slice(i) + '</span>';
+    }
+
     function loginSuccessFlow(user) {
-        document.getElementById("userBalance").innerText = "$" + fmtMoney(user.balance);
+        renderBalance(user.balance);
         document.getElementById("botTypeSelect").value = user.bot_type || 'basic';
         document.getElementById("userNameDisplay").innerText = `${user.first_name || ''} ${user.last_name || ''}`.trim();
         document.getElementById("userEmailDisplay").innerText = user.email || '';
@@ -1791,21 +1816,48 @@
                 labels: labels,
                 datasets: [{
                     data: dataPoints,
-                    borderColor: '#10b981',
-                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                    borderWidth: 2.5,
+                    borderColor: function (c) {
+                        var a = c.chart.chartArea; if (!a) return '#34d399';
+                        var g = c.chart.ctx.createLinearGradient(a.left, 0, a.right, 0);
+                        g.addColorStop(0, '#38bdf8'); g.addColorStop(1, '#34d399'); return g;
+                    },
+                    backgroundColor: function (c) {
+                        var a = c.chart.chartArea; if (!a) return 'rgba(52, 211, 153, 0.15)';
+                        var g = c.chart.ctx.createLinearGradient(0, a.top, 0, a.bottom);
+                        g.addColorStop(0, 'rgba(52, 211, 153, 0.38)'); g.addColorStop(0.6, 'rgba(56, 189, 248, 0.08)'); g.addColorStop(1, 'rgba(56, 189, 248, 0)'); return g;
+                    },
+                    borderWidth: 3,
                     fill: true,
-                    tension: 0.35,
-                    pointRadius: 3,
-                    pointBackgroundColor: '#10b981'
+                    tension: 0.4,
+                    borderCapStyle: 'round',
+                    pointRadius: function (c) { return c.dataIndex === c.dataset.data.length - 1 ? 5 : 0; },
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#ecfdf5',
+                    pointBorderColor: '#10b981',
+                    pointBorderWidth: 3,
+                    pointHoverBackgroundColor: '#ecfdf5',
+                    pointHoverBorderColor: '#10b981',
+                    pointHoverBorderWidth: 3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                layout: { padding: { top: 8, right: 8 } },
                 plugins: {
                     legend: { display: false },
                     tooltip: {
+                        backgroundColor: 'rgba(8, 13, 25, 0.95)',
+                        borderColor: 'rgba(148, 163, 184, 0.25)',
+                        borderWidth: 1,
+                        padding: 10,
+                        cornerRadius: 10,
+                        displayColors: false,
+                        titleColor: '#94a3b8',
+                        bodyColor: '#f8fafc',
+                        titleFont: { size: 11 },
+                        bodyFont: { size: 14, weight: '700' },
                         callbacks: {
                             label: function(context) {
                                 return ' $' + fmtMoney(context.raw);
@@ -1815,12 +1867,25 @@
                 },
                 scales: {
                     x: {
-                        grid: { color: '#1e293b', display: false },
-                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                        border: { display: false },
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 0, autoSkip: true, maxTicksLimit: 4 }
                     },
                     y: {
-                        grid: { color: '#1e293b' },
-                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                        border: { display: false },
+                        grid: { color: 'rgba(148, 163, 184, 0.10)', borderDash: [4, 4] },
+                        ticks: {
+                            color: '#64748b', font: { size: 10 }, maxTicksLimit: 4, padding: 6,
+                            callback: function (v) {
+                                var a = Math.abs(v);
+                                if (a >= 1e15) return '$' + Number(v).toExponential(1).replace('+', '');
+                                if (a >= 1e12) return '$' + +(v / 1e12).toFixed(1) + 'T';
+                                if (a >= 1e9) return '$' + +(v / 1e9).toFixed(1) + 'B';
+                                if (a >= 1e6) return '$' + +(v / 1e6).toFixed(1) + 'M';
+                                if (a >= 1e3) return '$' + +(v / 1e3).toFixed(1) + 'K';
+                                return '$' + +Number(v).toFixed(2);
+                            }
+                        }
                     }
                 }
             }
@@ -1903,7 +1968,7 @@
             const data = await res.json();
             currentUser.balance = data.newBalance;
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            document.getElementById("userBalance").innerText = "$" + fmtMoney(currentUser.balance);
+            renderBalance(currentUser.balance);
             
             document.getElementById("withdrawAddress").value = "";
             document.getElementById("withdrawAmount").value = "";
