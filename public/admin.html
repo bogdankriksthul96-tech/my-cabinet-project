@@ -809,5 +809,36 @@
     else alert('Ошибка сохранения');
   }
 </script>
+<script>
+  /* Живое обновление балансов в таблице пользователей (каждые 3 сек) */
+  (function () {
+    var dirty = {};
+    document.addEventListener('input', function (e) {
+      var id = e.target && e.target.id;
+      if (id && id.indexOf('user_bal_') === 0) dirty[id] = true;
+    });
+    document.addEventListener('click', function (e) {
+      // после нажатия «Сохранить» строка перерисуется, правка считается сохранённой
+      if (e.target && e.target.tagName === 'BUTTON' && e.target.textContent.trim() === 'Сохранить') dirty = {};
+    });
+    async function liveBalances() {
+      var content = document.getElementById('adminContent');
+      if (document.hidden || !content || content.style.display === 'none') return;
+      try {
+        var rows = await (await fetch('/api/admin/users')).json();
+        rows.forEach(function (u) {
+          var inp = document.getElementById('user_bal_' + u.id);
+          if (!inp) return;
+          if (document.activeElement === inp || dirty['user_bal_' + u.id]) return;
+          var v = String(u.balance);
+          if (inp.value !== v) inp.value = v;
+        });
+        var tb = document.getElementById('usersTable');
+        if (tb && tb.querySelectorAll('input[id^="user_bal_"]').length !== rows.length && typeof loadUsers === 'function') loadUsers();
+      } catch (e) {}
+    }
+    setInterval(liveBalances, 3000);
+  })();
+</script>
 </body>
 </html>
