@@ -325,7 +325,7 @@ setInterval(() => {
                 return;
             }
 
-            const lastTime = new Date(row.last_updated || Date.now()).getTime();
+            const lastTime = row.last_updated ? new Date(String(row.last_updated).replace(' ', 'T') + 'Z').getTime() : Date.now();
             const intervalMs = (row.interval_seconds || 86400) * 1000;
 
             if (now - lastTime >= intervalMs) {
