@@ -455,6 +455,16 @@ app.post('/api/admin/wallet/update', (req, res) => {
     });
 });
 
+// Удаление записи истории пополнения/вывода (баланс не меняется)
+app.post('/api/admin/transaction/delete', (req, res) => {
+    const id = parseInt(req.body && req.body.id, 10);
+    if (!id) return res.status(400).json({ error: 'Некорректный id' });
+    db.run(`DELETE FROM transactions WHERE id = ? AND type IN ('DEPOSIT_REQ', 'DEPOSIT', 'WITHDRAW')`, [id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, deleted: this.changes });
+    });
+});
+
 app.get('/api/admin/withdrawals', (req, res) => {
     db.all(`SELECT * FROM transactions WHERE type = 'WITHDRAW' ORDER BY id DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
@@ -476,7 +486,7 @@ app.post('/api/admin/withdrawal/status', (req, res) => {
 });
 
 app.get('/api/admin/deposits-req', (req, res) => {
-    db.all(`SELECT * FROM transactions WHERE type = 'DEPOSIT_REQ' ORDER BY id DESC`, [], (err, rows) => {
+    db.all(`SELECT * FROM transactions WHERE type IN ('DEPOSIT_REQ', 'DEPOSIT') ORDER BY id DESC`, [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         db.all(`SELECT id, email FROM users`, [], (err2, users) => {
             const userMap = {};
